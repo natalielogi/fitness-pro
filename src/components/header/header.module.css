@@ -1,0 +1,29 @@
+.header {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  margin-bottom: 60px;
+}
+
+.header__logoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.header__btn {
+  width: 103px;
+  height: 52px;
+  color: rgba(0, 0, 0, 1);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 21px;
+}
+
+.header__subtitle {
+  color: rgba(0, 0, 0, 1);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 21px;
+  opacity: 0.5;
+}
