@@ -3,7 +3,7 @@ import { Roboto } from 'next/font/google';
 import Header from '@/components/header/header';
 
 const roboto = Roboto({
-  subsets: ['latin'],
+  subsets: ['latin', 'cyrillic'],
   weight: ['400', '500', '700'],
   display: 'swap',
 });
