@@ -1,0 +1,85 @@
+.coursePage__suits {
+  margin-top: 60px;
+}
+
+.coursePage__suitsTitle {
+  color: rgba(0, 0, 0, 1);
+  font-family: Roboto;
+  font-size: 40px;
+  font-weight: 500;
+  margin-bottom: 40px;
+}
+
+.coursePage__suitsList {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 17px;
+  margin-bottom: 60px;
+}
+
+.coursePage__suitsItem {
+  height: 141px;
+  border-radius: 28px;
+  padding: 20px;
+  background: linear-gradient(152.61deg, rgba(21, 23, 31, 1) 0%, rgba(30, 33, 46, 1) 100%);
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.coursePage__suitsNum {
+  color: rgba(188, 236, 48, 1);
+  font-family: Roboto;
+  font-size: 75px;
+  font-weight: 500;
+  line-height: 88px;
+}
+
+.coursePage__suitsText {
+  color: rgba(255, 255, 255, 1);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 28px;
+}
+
+.coursePage__directionsTitle {
+  color: rgba(0, 0, 0, 1);
+  font-family: Roboto;
+  font-size: 40px;
+  font-weight: 500;
+}
+
+.coursePage__directionsList {
+  margin-top: 40px;
+  border-radius: 28px;
+  background: rgba(188, 236, 48, 1);
+  padding: 30px;
+  height: 146px;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 124px;
+  row-gap: 34px;
+}
+
+.coursePage__directionsItem {
+  color: rgba(0, 0, 0, 1);
+  font-family: Roboto;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 28px;
+  position: relative;
+  padding-left: 34px;
+}
+
+.coursePage__directionsItem::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  translate: 0 -50%;
+  width: 26px;
+  height: 26px;
+  background: url('/Sparcle.svg') no-repeat center / contain;
+}

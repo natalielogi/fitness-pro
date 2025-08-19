@@ -1,0 +1,59 @@
+.banner {
+  margin-top: 106px;
+  border-radius: 30px;
+  box-shadow: 0px 4px 67px -12px rgba(0, 0, 0, 0.13);
+  background: rgba(255, 255, 255, 1);
+}
+
+.colLeft {
+  width: 437px;
+  padding-left: 40px;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+.title {
+  width: 398px;
+  color: rgba(0, 0, 0, 1);
+  font-family: Roboto;
+  font-size: 60px;
+  font-weight: 500;
+  line-height: 70px;
+  padding-bottom: 28px;
+}
+
+.list {
+  width: 437px;
+  color: rgba(0, 0, 0, 0.6);
+  font-family: Roboto;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 28px;
+  margin: 0;
+  padding-left: 15px; /* обнуляем, сами дадим отступ у li */
+  list-style: none;
+}
+
+.list li {
+  position: relative;
+  padding-left: 16px; /* расстояние от точки до текста */
+  margin-bottom: 8px;
+}
+
+.list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%; /* центр по высоте строки */
+  transform: translateY(-55%); /* сдвинь -45%..-60% как нужно "чуть выше" */
+  width: 4px; /* размер точки */
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor; /* цвет = цвет текста (0.6 чёрный) */
+}
+
+.cta {
+  margin-top: 28px;
+  width: 437px;
+  height: 52px;
+}
