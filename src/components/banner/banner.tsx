@@ -18,19 +18,23 @@ export default function Banner() {
         </div>
 
         <div className={styles.media}>
-          <img src="/banner/loop.svg" alt="" aria-hidden="true" className={styles.loop} />
-
-          <Image
-            src="/banner/athlete.png"
-            alt=""
-            className={styles.athlete}
-            width={460}
-            height={420}
-            priority
-          />
-
-          <img src="/banner/arc.svg" alt="" aria-hidden="true" className={styles.arc} />
+          <div className={styles.loopWrap}>
+            <img src="/banner/loop.svg" alt="" aria-hidden="true" className={styles.loop} />
+          </div>
+          <div className={styles.arcWrap}>
+            <img src="/banner/arc.svg" alt="" aria-hidden="true" className={styles.arc} />
+          </div>
         </div>
+      </div>
+      <div className={styles.athleteWrap}>
+        <Image
+          src="/banner/athlete.png"
+          alt=""
+          className={styles.athlete}
+          width={604}
+          height={604}
+          priority
+        />
       </div>
     </section>
   );
