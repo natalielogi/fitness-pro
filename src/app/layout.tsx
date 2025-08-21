@@ -1,6 +1,8 @@
 import './globals.css';
 import { Roboto } from 'next/font/google';
 import Header from '@/components/header/header';
+import { AuthModalProvider } from '@/context/auth-modal';
+import AuthModal from '@/components/auth/authModal';
 
 const roboto = Roboto({
   subsets: ['latin', 'cyrillic'],
@@ -17,8 +19,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={roboto.className}>
-        <Header />
-        {children}
+        <AuthModalProvider>
+          <Header />
+          {children}
+          <AuthModal />
+        </AuthModalProvider>
       </body>
     </html>
   );
