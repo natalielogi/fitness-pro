@@ -2,12 +2,26 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useAuthModal } from '@/context/auth-modal';
+import Image from 'next/image';
+import styles from './authModal.module.css';
+import { getApiErrorMessage, loginUser } from '@/app/services/auth/authApi';
+
+type LoginFieldErrors = { email?: string; password?: string; form?: string };
+
+function mapLoginError(msg: string): LoginFieldErrors {
+  if (msg.includes('Пользователь с таким email не найден')) return { email: msg };
+  if (msg.includes('Неверный пароль')) return { password: msg };
+  return { form: msg };
+}
 
 export default function LoginForm() {
   const { switchMode, close } = useAuthModal();
-  const [login, setLogin] = useState('');
+
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [pending, setPending] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<LoginFieldErrors>({});
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -16,35 +30,46 @@ export default function LoginForm() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setPending(true);
+    setError({});
+    setIsSubmitting(true);
     try {
-      // TODO: await authApi.login({ login, password });
-      console.log('login', { login, password });
-      close();
+      const { token } = await loginUser({ email, password });
+      localStorage.setItem('token', token);
+      close?.();
+    } catch (e) {
+      const msg = getApiErrorMessage(e);
+      setError(mapLoginError(msg));
     } finally {
-      setPending(false);
+      setIsSubmitting(false);
     }
   };
 
-  const disabled = pending || !login || !password;
-
   return (
-    <form onSubmit={onSubmit} className="authForm" noValidate>
-      <h2>Войти</h2>
-
-      <label htmlFor="login">Логин</label>
-      <input
-        id="login"
-        name="login"
-        ref={inputRef}
-        value={login}
-        onChange={(e) => setLogin(e.target.value)}
-        autoComplete="username"
-        required
-        disabled={pending}
+    <form onSubmit={onSubmit} className={styles.authForm} noValidate>
+      <Image
+        src="/logo.svg"
+        alt="App logo"
+        width={220}
+        height={35}
+        className={styles.authForm__logo}
+        priority
       />
 
-      <label htmlFor="password">Пароль</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        ref={inputRef}
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        autoComplete="username"
+        placeholder="Логин"
+        className={`${styles.authForm__input} ${error.email ? styles.inputError : ''}`}
+        required
+        disabled={isSubmitting}
+        aria-invalid={!!error.email}
+      />
+
       <input
         id="password"
         name="password"
@@ -53,14 +78,28 @@ export default function LoginForm() {
         onChange={(e) => setPassword(e.target.value)}
         autoComplete="current-password"
         required
-        disabled={pending}
+        disabled={isSubmitting}
+        className={`${styles.authForm__input} ${error.email ? styles.inputError : ''}`}
+        placeholder="Пароль"
+        aria-invalid={!!error.password}
       />
 
-      <button type="submit" disabled={disabled}>
-        {pending ? 'Входим…' : 'Войти'}
+      {(error.email || error.password || error.form) && (
+        <p className={styles.errorText} role="alert" aria-live="polite">
+          {error.email || error.password || error.form}
+        </p>
+      )}
+
+      <button type="submit" className={`btn ${styles.button} ${styles.buttonPrimary}`}>
+        Войти
       </button>
 
-      <button type="button" onClick={() => switchMode('register')} disabled={pending}>
+      <button
+        type="button"
+        onClick={() => switchMode('register')}
+        className={`btn ${styles.button} ${styles.buttonSecondary}`}
+        disabled={isSubmitting}
+      >
         Зарегистрироваться
       </button>
     </form>

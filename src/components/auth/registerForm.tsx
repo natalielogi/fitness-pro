@@ -2,46 +2,73 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useAuthModal } from '@/context/auth-modal';
+import Image from 'next/image';
+import styles from './authModal.module.css';
+import { getApiErrorMessage, registerUser } from '@/app/services/auth/authApi';
+
+type RegisterFieldErrors = {
+  email?: string;
+  password?: string;
+  passwordConfirm?: string;
+  form?: string;
+};
+
+function mapRegisterError(msg: string): RegisterFieldErrors {
+  if (msg.includes('Введите корректный Email')) return { email: msg };
+  if (msg.includes('уже существует')) return { email: msg };
+  if (msg.includes('Пароль должен содержать')) return { password: msg };
+  return { form: msg };
+}
 
 export default function RegisterForm() {
-  const { switchMode, close } = useAuthModal();
-  const [email, setEmail] = useState('');
-  const [p1, setP1] = useState('');
-  const [p2, setP2] = useState('');
-  const [pending, setPending] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const { switchMode } = useAuthModal();
 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<RegisterFieldErrors>({});
+  const [ok, setOk] = useState<string | null>(null);
+
+  const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !p1 || !p2) return;
-    if (p1 !== p2) {
-      alert('Пароли не совпадают');
+    setOk(null);
+    setError({});
+
+    if (password !== passwordConfirm) {
+      setError({ passwordConfirm: 'Пароли не совпадают' });
       return;
     }
-    setPending(true);
+
+    setIsSubmitting(true);
     try {
-      // TODO: await authApi.register({ email, password: p1 });
-      console.log('register', { email, password: p1 });
-      close();
-    } catch (err) {
-      console.error(err);
-      // TODO: показать ошибку тостом
+      const { message } = await registerUser({ email, password });
+      setOk(message || 'Регистрация прошла успешно!');
+      switchMode('login');
+    } catch (e) {
+      const msg = getApiErrorMessage(e);
+      setError(mapRegisterError(msg));
     } finally {
-      setPending(false);
+      setIsSubmitting(false);
     }
   };
 
-  const disabled = pending || !email || !p1 || !p2;
-
   return (
-    <form onSubmit={onSubmit} className="authForm" noValidate>
-      <h2>Регистрация</h2>
+    <form onSubmit={onSubmit} className={styles.authForm} noValidate>
+      <Image
+        src="/logo.svg"
+        alt="App logo"
+        width={220}
+        height={35}
+        className={styles.authForm__logo}
+        priority
+      />
 
-      <label htmlFor="reg-email">Эл. почта</label>
       <input
         id="reg-email"
         name="email"
@@ -51,38 +78,60 @@ export default function RegisterForm() {
         onChange={(e) => setEmail(e.target.value)}
         autoComplete="email"
         required
-        disabled={pending}
+        disabled={isSubmitting}
+        className={`${styles.authForm__input} ${error.email ? styles.inputError : ''}`}
+        placeholder="Эл. почта"
+        aria-invalid={!!error.email}
       />
 
-      <label htmlFor="reg-pass">Пароль</label>
       <input
         id="reg-pass"
         name="password"
         type="password"
-        value={p1}
-        onChange={(e) => setP1(e.target.value)}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
         autoComplete="new-password"
         required
-        disabled={pending}
+        disabled={isSubmitting}
+        className={`${styles.authForm__input} ${error.email ? styles.inputError : ''}`}
+        placeholder="Пароль"
+        aria-invalid={!!error.password}
       />
 
-      <label htmlFor="reg-pass2">Повторите пароль</label>
       <input
         id="reg-pass2"
         name="passwordConfirm"
         type="password"
-        value={p2}
-        onChange={(e) => setP2(e.target.value)}
+        value={passwordConfirm}
+        onChange={(e) => setPasswordConfirm(e.target.value)}
         autoComplete="new-password"
         required
-        disabled={pending}
+        disabled={isSubmitting}
+        className={`${styles.authForm__input} ${error.email ? styles.inputError : ''}`}
+        placeholder="Повторите пароль"
+        aria-invalid={!!error.passwordConfirm}
       />
+      {(error.email || error.password || error.passwordConfirm || error.form) && (
+        <p className={styles.errorText} role="alert" aria-live="polite">
+          {error.email || error.password || error.passwordConfirm || error.form}
+        </p>
+      )}
+      {ok && (
+        <p className="authForm__success" role="status" aria-live="polite">
+          {ok}
+        </p>
+      )}
 
-      <button type="submit" disabled={disabled}>
-        {pending ? 'Регистрируем…' : 'Зарегистрироваться'}
+      <button type="submit" className={`btn ${styles.button} ${styles.buttonPrimary}`}>
+        Зарегистрироваться
       </button>
 
-      <button type="button" onClick={() => switchMode('login')} disabled={pending}>
+      <button
+        type="button"
+        onClick={() => switchMode('login')}
+        className={`btn ${styles.button} ${styles.buttonSecondary}`}
+        disabled={isSubmitting}
+      >
         Войти
       </button>
     </form>
