@@ -5,6 +5,7 @@ import { useAuthModal } from '@/context/auth-modal';
 import Image from 'next/image';
 import styles from './authModal.module.css';
 import { getApiErrorMessage, loginUser } from '@/app/services/auth/authApi';
+import { useAuth } from '@/context/auth';
 
 type LoginFieldErrors = { email?: string; password?: string; form?: string };
 
@@ -28,13 +29,15 @@ export default function LoginForm() {
     inputRef.current?.focus();
   }, []);
 
+  const { login } = useAuth();
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError({});
     setIsSubmitting(true);
     try {
       const { token } = await loginUser({ email, password });
-      localStorage.setItem('token', token);
+      login(token, email);
       close?.();
     } catch (e) {
       const msg = getApiErrorMessage(e);
@@ -79,7 +82,7 @@ export default function LoginForm() {
         autoComplete="current-password"
         required
         disabled={isSubmitting}
-        className={`${styles.authForm__input} ${error.email ? styles.inputError : ''}`}
+        className={`${styles.authForm__input} ${error.password ? styles.inputError : ''}`}
         placeholder="Пароль"
         aria-invalid={!!error.password}
       />
