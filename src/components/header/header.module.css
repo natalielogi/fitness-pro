@@ -27,3 +27,75 @@
   line-height: 21px;
   opacity: 0.5;
 }
+
+.header__authControls {
+  position: relative;
+}
+
+.profileMenu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 266px;
+  padding: 30px;
+  border-radius: 30px;
+  background: #fff;
+  box-shadow: 0px 4px 67px -12px rgba(0, 0, 0, 0.13);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+}
+
+.header__profileBtn {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.header__profileIcon {
+  margin-right: 4px;
+}
+
+.header__name {
+  color: rgba(0, 0, 0, 1);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 28px;
+}
+
+.profileMenu__top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profileMenu__title {
+  color: rgba(0, 0, 0, 1);
+  font-family: StratosSkyeng;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.profileMenu__email {
+  color: rgba(153, 153, 153, 1);
+  font-family: StratosSkyeng;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.menuBtn {
+  width: 206px;
+  height: 52px;
+  color: rgba(0, 0, 0, 1);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 21px;
+}
+
+.menuBtnSecondary {
+  margin-top: 10px;
+  border: 1px solid rgba(0, 0, 0, 1);
+  background-color: #fff;
+}
