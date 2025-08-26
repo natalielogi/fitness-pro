@@ -1,8 +1,9 @@
-import { Course } from '@/sharedTypes/types';
+import { UiCourse } from '@/sharedTypes/types';
 
-export const mockCourses: Course[] = [
+export const mockCourses: UiCourse[] = [
   {
-    id: 'yoga',
+    _id: '6i67sm',
+    slug: 'yoga',
     title: 'Йога',
     days: 25,
     dailyMinutes: '20–50 мин/день',
@@ -10,7 +11,8 @@ export const mockCourses: Course[] = [
     image: '/courses/yoga.png',
   },
   {
-    id: 'stretching',
+    _id: '9ab123',
+    slug: 'stretching',
     title: 'Стретчинг',
     days: 25,
     dailyMinutes: '20–50 мин/день',
@@ -18,7 +20,8 @@ export const mockCourses: Course[] = [
     image: '/courses/stretching.jpg',
   },
   {
-    id: 'fitness',
+    _id: '8xz777',
+    slug: 'fitness',
     title: 'Фитнес',
     days: 25,
     dailyMinutes: '20–50 мин/день',
@@ -26,7 +29,8 @@ export const mockCourses: Course[] = [
     image: '/courses/fitness.jpg',
   },
   {
-    id: 'step',
+    _id: '5kk431',
+    slug: 'step',
     title: 'Степ-аэробика',
     days: 25,
     dailyMinutes: '20–50 мин/день',
@@ -34,7 +38,8 @@ export const mockCourses: Course[] = [
     image: '/courses/step.jpg',
   },
   {
-    id: 'bodyflex',
+    _id: '3po010',
+    slug: 'bodyflex',
     title: 'Бодифлекс',
     days: 25,
     dailyMinutes: '20–50 мин/день',

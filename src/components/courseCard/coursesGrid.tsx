@@ -15,7 +15,7 @@ export default function Coursesgrid() {
     <section className="container-1440">
       <div className={styles.courses}>
         {mockCourses.map((course) => (
-          <CourseCard key={course.id} {...course} />
+          <CourseCard key={course._id} {...course} />
         ))}
       </div>
       <button className={`btn ${styles.back__btn}`} onClick={scrollToTop}>
