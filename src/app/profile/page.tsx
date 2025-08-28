@@ -72,19 +72,19 @@ export default function ProfilePage() {
           priority
           className={styles.profile__avatar}
         />
-        <div className={styles.cardBody}>
+        <div className={styles.profile__info}>
           <h2 id="profile-card-title" className={styles.cardTitle}>
             {loginName || '—'}
           </h2>
           <div className={styles.cardSubtitle}>Логин: {me?.email ?? emailFromCtx ?? '—'}</div>
         </div>
-        <button type="button" className="btn" onClick={onLogout}>
+        <button type="button" className={`btn ${styles.profile__logout}`} onClick={onLogout}>
           Выйти
         </button>
       </section>
 
       <section className={styles.courses}>
-        <h2>Мои курсы</h2>
+        <h2 className={styles.courses__title}>Мои курсы</h2>
 
         {loading && <p className={styles.loading}>Загрузка…</p>}
 

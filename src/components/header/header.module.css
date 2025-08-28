@@ -3,6 +3,7 @@
   flex-wrap: nowrap;
   justify-content: space-between;
   margin-bottom: 60px;
+  margin-top: 50px;
 }
 
 .header__logoBlock {
@@ -98,4 +99,8 @@
   margin-top: 10px;
   border: 1px solid rgba(0, 0, 0, 1);
   background-color: #fff;
+}
+
+.header__profileBtn {
+  cursor: pointer;
 }
