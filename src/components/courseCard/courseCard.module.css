@@ -6,6 +6,7 @@
 }
 
 .card {
+  position: relative;
   width: 360px;
   height: 501px;
   padding: 0 0 15px 0;
@@ -17,6 +18,61 @@
     linear-gradient(to bottom, rgba(255, 0, 0, 0.15) 1px, transparent 1px);
   background-size: 10px 10px;
   background-position: top left;
+}
+
+.card__addBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.card__addIcon {
+  pointer-events: none;
+  display: block;
+}
+
+.card__addBtn[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 8px); /* справа от кнопки */
+  transform: translateY(-50%) scale(0.98);
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 8px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+  color: #000;
+  font-size: 16px;
+  line-height: 20px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.card__addBtn:hover::after,
+.card__addBtn:hover::before,
+.card__addBtn:focus-visible::after,
+.card__addBtn:focus-visible::before {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+.card__addBtn:hover {
+  transform: scale(1.05);
+}
+.card__addBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .card__title {
