@@ -55,14 +55,11 @@
   border-radius: 28px;
   background: rgba(188, 236, 48, 1);
   padding: 30px;
-  height: 146px;
-
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   column-gap: 124px;
   row-gap: 34px;
 }
-
 .coursePage__directionsItem {
   color: rgba(0, 0, 0, 1);
   font-family: Roboto;
@@ -72,7 +69,6 @@
   position: relative;
   padding-left: 34px;
 }
-
 .coursePage__directionsItem::before {
   content: '';
   position: absolute;

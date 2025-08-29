@@ -66,6 +66,11 @@
   margin-top: 28px;
   width: 437px;
   height: 52px;
+  color: rgba(0, 0, 0, 1);
+  font-family: Roboto;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 21px;
 }
 
 .media {

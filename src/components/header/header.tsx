@@ -52,7 +52,7 @@ export default function Header() {
     <header className={`container-1440 ${styles.header}`}>
       <div className={styles.header__logoBlock}>
         <Link href="/" className={styles.header__logo}>
-          <Image src="/logo.svg" alt="SkyFitnessPro" width={220} height={35} priority />
+          <Image src="/logo.svg" alt="SkyFitnessPro" width={220} height={35} />
         </Link>
         <p className={styles.header__subtitle}>Онлайн-тренировки для занятий дома</p>
       </div>

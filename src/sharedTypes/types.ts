@@ -1,12 +1,11 @@
-export type Course = {
+export type UiCourse = {
   _id: string;
+  slug: string;
+  image: string;
   title: string;
   days: number;
   dailyMinutes: string;
   difficulty: 'Лёгкий' | 'Средний' | 'Сложный';
-  image: string;
 };
 
-export type UiCourse = Course & {
-  slug: string;
-};
+export type Course = Omit<UiCourse, 'slug'>;

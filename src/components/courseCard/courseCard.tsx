@@ -3,11 +3,73 @@ import Image from 'next/image';
 import styles from './courseCard.module.css';
 import Link from 'next/link';
 
-export default function CourseCard(course: UiCourse) {
-  const { slug, image, title, days, dailyMinutes, difficulty } = course;
+type Props = UiCourse & {
+  _id: string;
+  onAdd?: (id: string) => void | Promise<void>;
+  adding?: boolean;
+  isSelected?: boolean;
+  isAuthed?: boolean;
+  onRequireAuth?: () => void;
+};
+
+export default function CourseCard({
+  _id,
+  slug,
+  image,
+  title,
+  days,
+  dailyMinutes,
+  difficulty,
+  onAdd,
+  adding,
+  isSelected,
+  isAuthed,
+  onRequireAuth,
+}: Props) {
+  const showAddBtn = !isSelected;
+
+  const handleAddClick: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAuthed) {
+      onRequireAuth?.();
+      return;
+    }
+    await onAdd?.(_id);
+  };
   return (
     <Link href={`/courses/${slug}`} className={styles.card}>
-      <Image className={styles.card__img} src={image} alt={title} width={360} height={325} />
+      {showAddBtn && (
+        <button
+          type="button"
+          className={styles.card__addBtn}
+          onClick={handleAddClick}
+          disabled={adding}
+          data-tooltip="Добавить курс"
+          aria-label="Добавить курс"
+        >
+          <Image
+            src="/add.svg"
+            alt=""
+            width={32}
+            height={32}
+            className={styles.card__addIcon}
+            aria-hidden="true"
+          />
+        </button>
+      )}
+      <Image
+        className={styles.card__img}
+        src={image}
+        alt={title}
+        width={360}
+        height={325}
+        onError={(ev) => {
+          const img = ev.currentTarget as HTMLImageElement;
+          img.onerror = null;
+          img.src = '/card/placeholder.svg';
+        }}
+      />
       <div className={styles.card__description}>
         <h2 className={styles.card__title}>{title}</h2>
         <div className={styles.card__block}>
