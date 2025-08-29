@@ -7,15 +7,20 @@ import { UiCourse } from '@/sharedTypes/types';
 import { listCourses } from '@/app/services/courses/coursesApi';
 import { useAuth } from '@/context/auth';
 import { useAuthModal } from '@/context/auth-modal';
+import { addCourseToMe, getCurrentUser } from '@/app/services/user/userApi';
+import Toast from '../ui/toast';
 
 export default function Coursesgrid() {
-  const { isAuthed } = useAuth();
+  const { isAuthed, token } = useAuth();
   const { open } = useAuthModal();
 
   const [items, setItems] = useState<UiCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const [addingId, setAddingId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [toastOpen, setToastOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -30,13 +35,32 @@ export default function Coursesgrid() {
     })();
   }, []);
 
-  const onAdd = async (id: string) => {
-    setAddingId(id);
-    await new Promise((r) => setTimeout(r, 300));
-    setAddingId(null);
-  };
+  useEffect(() => {
+    (async () => {
+      if (!isAuthed || !token) return;
+      try {
+        const me = await getCurrentUser(token);
+        setSelectedIds(new Set(me.selectedCourses));
+      } catch {}
+    })();
+  }, [isAuthed, token]);
 
-  const onRequireAuth = () => open('login');
+  const onAdd = async (id: string) => {
+    if (!isAuthed || !token) {
+      open('login');
+      return;
+    }
+    setAddingId(id);
+    try {
+      await addCourseToMe(token, id);
+      setSelectedIds((prev) => new Set(prev).add(id));
+      setToastOpen(true);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Не удалось добавить курс');
+    } finally {
+      setAddingId(null);
+    }
+  };
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -56,15 +80,15 @@ export default function Coursesgrid() {
       {!loading && !error && (
         <>
           <div className={styles.courses}>
-            {items.map((course) => (
+            {items.map((c) => (
               <CourseCard
-                key={course._id}
-                {...course}
-                onAdd={isAuthed ? onAdd : undefined}
-                adding={addingId === course._id}
-                isSelected={false}
+                key={c._id}
+                {...c}
+                onAdd={onAdd}
+                adding={addingId === c._id}
+                isSelected={selectedIds.has(c._id)}
                 isAuthed={isAuthed}
-                onRequireAuth={onRequireAuth}
+                onRequireAuth={() => open('login')}
               />
             ))}
           </div>
@@ -74,6 +98,7 @@ export default function Coursesgrid() {
           </button>
         </>
       )}
+      <Toast open={toastOpen} text="Курс успешно добавлен!" onClose={() => setToastOpen(false)} />
     </section>
   );
 }
