@@ -1,19 +1,32 @@
 import type { UiCourse } from '@/sharedTypes/types';
 import { API_BASE } from '../constants';
 
-export type CourseDto = {
+export type CourseListDto = {
   _id: string;
   nameRU: string;
   nameEN?: string;
+  difficulty?: string;
+  durationInDays?: number;
+  dailyDurationInMinutes?: { from?: number; to?: number };
   description?: string;
   directions?: string[];
   fitting?: string[];
   workouts?: string[];
+  order?: number;
+  __v?: number;
+};
+
+export type CourseDetailDto = {
+  _id: string;
+  nameRU: string;
+  nameEN?: string;
+  description?: string;
+  directions: string[];
+  fitting: string[];
   difficulty?: string;
   durationInDays?: number;
   dailyDurationInMinutes?: { from?: number; to?: number };
-  order?: number;
-  __v?: number;
+  workouts: string[];
 };
 
 function hasMessage(v: unknown): v is { message: string } {
@@ -40,7 +53,7 @@ const difficultyMap = {
   сложный: 'Сложный',
 } as const;
 
-type UiDifficulty = (typeof difficultyMap)[keyof typeof difficultyMap]; // "Лёгкий" | "Средний" | "Сложный"
+type UiDifficulty = (typeof difficultyMap)[keyof typeof difficultyMap];
 
 function mapDifficulty(src?: string): UiDifficulty {
   const key = (src ?? '').toLowerCase() as keyof typeof difficultyMap;
@@ -88,9 +101,9 @@ export async function listCourses(): Promise<UiCourse[]> {
 
   if (!Array.isArray(data)) return [];
 
-  return (data as CourseDto[]).map((dto) => {
+  return (data as CourseListDto[]).map((dto) => {
     const slug = slugify(dto.nameEN, dto.nameRU, dto._id);
-    const ui: UiCourse = {
+    return {
       _id: dto._id,
       slug,
       image: pickImage(slug),
@@ -98,7 +111,34 @@ export async function listCourses(): Promise<UiCourse[]> {
       days: dto.durationInDays ?? 0,
       dailyMinutes: fmtDailyMinutes(dto.dailyDurationInMinutes),
       difficulty: mapDifficulty(dto.difficulty),
-    };
-    return ui;
+    } satisfies UiCourse;
   });
+}
+
+export async function getCourseById(id: string): Promise<CourseDetailDto> {
+  const res = await fetch(`${API_BASE}/courses/${id}`, {
+    method: 'GET',
+    cache: 'no-store',
+  });
+  const data = await parse(res);
+
+  if (!res.ok) {
+    const msg = hasMessage(data) ? data.message : `HTTP ${res.status}`;
+    throw new Error(msg);
+  }
+
+  const d = data as Partial<CourseDetailDto> | null;
+
+  return {
+    _id: d?._id ?? id,
+    nameRU: d?.nameRU ?? '',
+    nameEN: d?.nameEN,
+    description: d?.description,
+    directions: Array.isArray(d?.directions) ? d.directions : [],
+    fitting: Array.isArray(d?.fitting) ? d.fitting : [],
+    difficulty: d?.difficulty,
+    durationInDays: d?.durationInDays,
+    dailyDurationInMinutes: d?.dailyDurationInMinutes,
+    workouts: Array.isArray(d?.workouts) ? d.workouts : [],
+  };
 }
