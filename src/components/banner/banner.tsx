@@ -1,7 +1,28 @@
+'use client';
 import Image from 'next/image';
 import styles from './banner.module.css';
+import { useAuth } from '@/context/auth';
+import { useAuthModal } from '@/context/auth-modal';
 
-export default function Banner() {
+type Props = {
+  onAdd?: () => void | Promise<void>;
+  disabled?: boolean;
+};
+
+export default function Banner({ onAdd, disabled }: Props) {
+  const { isAuthed } = useAuth();
+  const { open } = useAuthModal();
+
+  const label = isAuthed ? 'Добавить курс' : 'Войдите, чтобы добавить курс';
+
+  const handleClick = () => {
+    if (!isAuthed) {
+      open('login');
+      return;
+    }
+    onAdd?.();
+  };
+
   return (
     <section className={styles.wrap}>
       <div className={styles.banner}>
@@ -14,7 +35,9 @@ export default function Banner() {
             <li>упражнения заряжают бодростью</li>
             <li>помогают противостоять стрессам</li>
           </ul>
-          <button className={`btn ${styles.cta}`}>Войдите, чтобы добавить курс</button>
+          <button className={`btn ${styles.cta}`} onClick={handleClick} disabled={disabled}>
+            {label}
+          </button>
         </div>
 
         <div className={styles.media}>

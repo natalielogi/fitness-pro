@@ -26,7 +26,7 @@ export default function CourseCard({
   isAuthed,
   onRequireAuth,
 }: Props) {
-  const showAddBtn = !!onAdd && !isSelected;
+  const showAddBtn = !isSelected;
 
   const handleAddClick: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
     e.preventDefault();
