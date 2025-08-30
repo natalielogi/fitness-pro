@@ -10,6 +10,7 @@ import { getCurrentUser, removeCourseFromMe } from '../services/user/userApi';
 import { listCourses } from '@/app/services/courses/coursesApi';
 import type { UiCourse } from '@/sharedTypes/types';
 import CourseCard from '@/components/courseCard/courseCard';
+import WorkoutModal from '@/components/workouts/workoutModal';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function ProfilePage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [allCourses, setAllCourses] = useState<UiCourse[]>([]);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [workoutCourseId, setWorkoutCourseId] = useState<string | null>(null);
 
   const loginName = useMemo(() => {
     const e = meEmail || emailFromCtx || '';
@@ -89,11 +91,8 @@ export default function ProfilePage() {
     }
   };
 
-  const openWorkoutsModal = (courseId: string) => {
-    // TODO: тут откроем модалку выбора тренировки из курса
-    // пока заглушка:
-    console.log('open workouts for', courseId);
-  };
+  const openWorkoutsModal = (courseId: string) => setWorkoutCourseId(courseId);
+  const closeWorkoutsModal = () => setWorkoutCourseId(null);
 
   if (!isAuthed) {
     return (
@@ -135,6 +134,12 @@ export default function ProfilePage() {
         <h2 className={styles.courses__title}>Мои курсы</h2>
 
         {loading && <p className={styles.loading}>Загрузка…</p>}
+
+        <WorkoutModal
+          open={Boolean(workoutCourseId)}
+          courseId={workoutCourseId ?? ''}
+          onClose={closeWorkoutsModal}
+        />
 
         {!loading && error && (
           <p role="alert" className={styles.error}>
