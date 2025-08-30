@@ -6,11 +6,10 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './profile.module.css';
-
 import { getCurrentUser, removeCourseFromMe } from '../services/user/userApi';
 import { listCourses } from '@/app/services/courses/coursesApi';
 import type { UiCourse } from '@/sharedTypes/types';
-import MyCourseCard from '@/components/profile/myCourseCard';
+import CourseCard from '@/components/courseCard/courseCard';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -149,12 +148,14 @@ export default function ProfilePage() {
             <ul className={styles.coursesGrid}>
               {myCourses.map((c) => (
                 <li key={c._id} className={styles.coursesGridItem}>
-                  <MyCourseCard
-                    course={c}
-                    progress={0}
+                  <CourseCard
+                    variant="profile"
+                    {...c}
+                    _id={c._id}
+                    progressPercent={0}
                     onRemove={onRemove}
                     removing={removingId === c._id}
-                    onOpenWorkouts={openWorkoutsModal}
+                    onCtaClick={() => openWorkoutsModal(c._id)}
                   />
                 </li>
               ))}

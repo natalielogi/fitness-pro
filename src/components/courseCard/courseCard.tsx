@@ -10,6 +10,14 @@ type Props = UiCourse & {
   isSelected?: boolean;
   isAuthed?: boolean;
   onRequireAuth?: () => void;
+
+  onRemove?: (id: string) => void | Promise<void>;
+  removing?: boolean;
+  progressPercent?: number;
+  onCtaClick?: () => void;
+  ctaLabel?: string;
+
+  variant?: 'catalog' | 'profile';
 };
 
 export default function CourseCard({
@@ -25,8 +33,26 @@ export default function CourseCard({
   isSelected,
   isAuthed,
   onRequireAuth,
+  onRemove,
+  removing,
+  progressPercent = 0,
+  onCtaClick,
+  ctaLabel,
+  variant = 'catalog',
 }: Props) {
-  const showAddBtn = !isSelected;
+  const isProfile = variant === 'profile';
+  const showAddBtn = !isProfile && !isSelected;
+
+  const progress = Math.max(0, Math.min(progressPercent, 100));
+
+  function getCtaText(progress: number, ctaLabel?: string) {
+    if (ctaLabel) return ctaLabel;
+    if (progress === 100) return 'Начать заново';
+    if (progress > 0) return 'Продолжить';
+    return 'Начать тренировки';
+  }
+
+  const ctaText = getCtaText(progress, ctaLabel);
 
   const handleAddClick: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
     e.preventDefault();
@@ -37,8 +63,15 @@ export default function CourseCard({
     }
     await onAdd?.(_id);
   };
-  return (
-    <Link href={`/courses/${slug}`} className={styles.card}>
+
+  const handleRemoveClick: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await onRemove?.(_id);
+  };
+
+  const CardBody = (
+    <>
       {showAddBtn && (
         <button
           type="button"
@@ -58,6 +91,27 @@ export default function CourseCard({
           />
         </button>
       )}
+
+      {isProfile && (
+        <button
+          type="button"
+          className={styles.card__removeBtn}
+          onClick={handleRemoveClick}
+          disabled={removing}
+          data-tooltip="Удалить курс"
+          aria-label="Удалить курс"
+        >
+          <Image
+            src="/remove.svg"
+            alt=""
+            width={32}
+            height={32}
+            className={styles.card__removeIcon}
+            aria-hidden="true"
+          />
+        </button>
+      )}
+
       <Image
         className={styles.card__img}
         src={image}
@@ -70,6 +124,7 @@ export default function CourseCard({
           img.src = '/card/placeholder.svg';
         }}
       />
+
       <div className={styles.card__description}>
         <h2 className={styles.card__title}>{title}</h2>
         <div className={styles.card__block}>
@@ -78,9 +133,8 @@ export default function CourseCard({
               className={styles.card__duration_img}
               src="/card/Calendar.svg"
               alt=""
-              width={0}
-              height={0}
-              style={{ width: 18, height: 18 }}
+              width={18}
+              height={18}
             />
             <p className={styles.card__duration_p}>{days} дней</p>
           </div>
@@ -89,9 +143,8 @@ export default function CourseCard({
               className={styles.card__dailyDuration_img}
               src="/card/Time.svg"
               alt=""
-              width={0}
-              height={0}
-              style={{ width: 18, height: 18 }}
+              width={18}
+              height={18}
             />
             <p className={styles.card__dailyDuration_p}>{dailyMinutes}</p>
           </div>
@@ -100,14 +153,51 @@ export default function CourseCard({
               className={styles.card__difficulty_img}
               src="/card/difficulty.svg"
               alt=""
-              width={0}
-              height={0}
-              style={{ width: 18, height: 18 }}
+              width={18}
+              height={18}
             />
             <p className={styles.card__difficulty_p}>{difficulty}</p>
           </div>
         </div>
+
+        {isProfile && (
+          <>
+            <div className={styles.card__progressBox} aria-label="Прогресс">
+              <span className={styles.card__progressLabel}>Прогресс {Math.round(progress)}%</span>
+              <div
+                className={styles.card__progressBar}
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(progress)}
+              >
+                <div className={styles.card__progressFill} style={{ width: `${progress}%` }} />
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className={`btn ${styles.card__cta}`}
+              onClick={(e) => {
+                e.preventDefault();
+                onCtaClick?.();
+              }}
+            >
+              {ctaText}
+            </button>
+          </>
+        )}
       </div>
+    </>
+  );
+
+  return isProfile ? (
+    <article className={styles.card} aria-label={title}>
+      {CardBody}
+    </article>
+  ) : (
+    <Link href={`/courses/${slug}`} className={styles.card}>
+      {CardBody}
     </Link>
   );
 }

@@ -6,18 +6,14 @@
 }
 
 .card {
+  display: block;
   position: relative;
   width: 360px;
-  height: 501px;
+  min-height: 501px;
   padding: 0 0 15px 0;
   border-radius: 30px;
   box-shadow: 0px 4px 67px -12px rgba(0, 0, 0, 0.13);
   background-color: #fff;
-  background-image:
-    linear-gradient(to right, rgba(255, 0, 0, 0.15) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 0, 0, 0.15) 1px, transparent 1px);
-  background-size: 10px 10px;
-  background-position: top left;
 }
 
 .card__addBtn {
@@ -41,7 +37,7 @@
   content: attr(data-tooltip);
   position: absolute;
   top: 50%;
-  left: calc(100% + 8px); /* справа от кнопки */
+  left: calc(100% + 8px);
   transform: translateY(-50%) scale(0.98);
   padding: 6px 10px;
   background: #fff;
@@ -73,6 +69,105 @@
 .card__addBtn:disabled {
   opacity: 0.6;
   cursor: default;
+}
+
+.card__removeBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.card__removeIcon {
+  display: block;
+  pointer-events: none;
+}
+.card__removeBtn[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 8px);
+  transform: translateY(-50%) scale(0.98);
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 8px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+  color: #000;
+  font-size: 16px;
+  line-height: 20px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+}
+.card__removeBtn:hover::after,
+.card__removeBtn:focus-visible::after {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+.card__progressBox {
+  margin-top: 20px;
+}
+.card__progressLabel {
+  display: block;
+  color: rgba(0, 0, 0, 1);
+  font-family: Roboto;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 21px;
+}
+
+.card__progressBar {
+  margin-top: 10px;
+  width: 100%;
+  height: 6px;
+  border-radius: 50px;
+  background: rgba(247, 247, 247, 1);
+  overflow: hidden;
+}
+.card__progressFill {
+  height: 100%;
+  width: 0%;
+  background: rgba(0, 193, 255, 1);
+  border-radius: inherit;
+  transition: width 0.3s ease;
+}
+
+.card__cta {
+  margin-top: 40px;
+  width: 300px;
+  height: 52px;
+  color: rgba(0, 0, 0, 1);
+  font-family: Roboto;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 21px;
+}
+
+.card__cta:active {
+  transform: translateY(1px);
+}
+.card__cta:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.card__img {
+  display: block;
+  width: 100%;
+  height: 325px;
+  object-fit: cover;
+  border-radius: 30px 30px 0 0;
 }
 
 .card__title {
