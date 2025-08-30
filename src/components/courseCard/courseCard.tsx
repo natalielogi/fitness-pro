@@ -129,33 +129,15 @@ export default function CourseCard({
         <h2 className={styles.card__title}>{title}</h2>
         <div className={styles.card__block}>
           <div className={styles.card__timeDuration}>
-            <Image
-              className={styles.card__duration_img}
-              src="/card/Calendar.svg"
-              alt=""
-              width={18}
-              height={18}
-            />
+            <img src="/card/Calendar.svg" alt="" className={styles.card__icon} />
             <p className={styles.card__duration_p}>{days} дней</p>
           </div>
           <div className={styles.card__dailyDuration}>
-            <Image
-              className={styles.card__dailyDuration_img}
-              src="/card/Time.svg"
-              alt=""
-              width={18}
-              height={18}
-            />
+            <img src="/card/Time.svg" alt="" className={styles.card__icon} />
             <p className={styles.card__dailyDuration_p}>{dailyMinutes}</p>
           </div>
           <div className={styles.card__difficulty}>
-            <Image
-              className={styles.card__difficulty_img}
-              src="/card/difficulty.svg"
-              alt=""
-              width={18}
-              height={18}
-            />
+            <img src="/card/difficulty.svg" alt="" className={styles.card__icon} />
             <p className={styles.card__difficulty_p}>{difficulty}</p>
           </div>
         </div>
