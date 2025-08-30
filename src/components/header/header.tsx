@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+
 'use client';
 
 import Link from 'next/link';
@@ -6,10 +8,11 @@ import styles from './header.module.css';
 import { useAuthModal } from '@/context/auth-modal';
 import { useAuth } from '@/context/auth';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const { open } = useAuthModal();
   const { isAuthed, email, logout } = useAuth();
 
@@ -48,13 +51,24 @@ export default function Header() {
     router.push('/');
   };
 
+  const hideSubtitle = pathname === '/profile' || pathname.startsWith('/workouts');
+
   return (
     <header className={`container-1440 ${styles.header}`}>
       <div className={styles.header__logoBlock}>
         <Link href="/" className={styles.header__logo}>
-          <Image src="/logo.svg" alt="SkyFitnessPro" width={220} height={35} />
+          <img
+            src="/logo.svg"
+            alt="SkyFitnessPro"
+            width={220}
+            height={35}
+            fetchPriority="high"
+            decoding="async"
+          />{' '}
         </Link>
-        <p className={styles.header__subtitle}>Онлайн-тренировки для занятий дома</p>
+        {!hideSubtitle && (
+          <p className={styles.header__subtitle}>Онлайн-тренировки для занятий дома</p>
+        )}{' '}
       </div>
 
       {!mounted || !isAuthed ? (

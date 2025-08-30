@@ -10,6 +10,7 @@ import { getCurrentUser, removeCourseFromMe } from '../services/user/userApi';
 import { listCourses } from '@/app/services/courses/coursesApi';
 import type { UiCourse } from '@/sharedTypes/types';
 import CourseCard from '@/components/courseCard/courseCard';
+import WorkoutModal from '@/components/workouts/workoutModal';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function ProfilePage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [allCourses, setAllCourses] = useState<UiCourse[]>([]);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [workoutCourse, setWorkoutCourse] = useState<{ id: string; slug: string } | null>(null);
 
   const loginName = useMemo(() => {
     const e = meEmail || emailFromCtx || '';
@@ -40,16 +42,6 @@ export default function ProfilePage() {
       try {
         setLoading(true);
         const [me, courses] = await Promise.all([getCurrentUser(token), listCourses()]);
-        console.log('[profile] me:', me);
-        console.log('[profile] me.selectedCourses:', me.selectedCourses);
-        console.log(
-          '[profile] allCourses ids:',
-          courses.map((c) => c._id),
-        );
-        console.log(
-          '[profile] intersection:',
-          me.selectedCourses.filter((id) => courses.some((c) => c._id === id)),
-        );
         if (cancelled) return;
         setMeEmail(me.email);
         setSelectedIds(me.selectedCourses);
@@ -89,12 +81,10 @@ export default function ProfilePage() {
     }
   };
 
-  const openWorkoutsModal = (courseId: string) => {
-    // TODO: тут откроем модалку выбора тренировки из курса
-    // пока заглушка:
-    console.log('open workouts for', courseId);
-  };
+  const openWorkoutsModal = (courseId: string, slug: string) =>
+    setWorkoutCourse({ id: courseId, slug });
 
+  const closeWorkoutsModal = () => setWorkoutCourse(null);
   if (!isAuthed) {
     return (
       <main className={`container-1440 ${styles.page}`}>
@@ -136,6 +126,13 @@ export default function ProfilePage() {
 
         {loading && <p className={styles.loading}>Загрузка…</p>}
 
+        <WorkoutModal
+          open={Boolean(workoutCourse)}
+          courseId={workoutCourse?.id ?? ''}
+          courseSlug={workoutCourse?.slug}
+          onClose={closeWorkoutsModal}
+        />
+
         {!loading && error && (
           <p role="alert" className={styles.error}>
             {error}
@@ -155,7 +152,7 @@ export default function ProfilePage() {
                     progressPercent={0}
                     onRemove={onRemove}
                     removing={removingId === c._id}
-                    onCtaClick={() => openWorkoutsModal(c._id)}
+                    onCtaClick={() => openWorkoutsModal(c._id, c.slug)}
                   />
                 </li>
               ))}

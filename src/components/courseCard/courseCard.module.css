@@ -246,6 +246,12 @@
   line-height: 19px;
 }
 
+.card__icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
 .back__btn {
   margin-top: 34px;
   margin-bottom: 81px;
