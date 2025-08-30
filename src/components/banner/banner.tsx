@@ -3,24 +3,33 @@ import Image from 'next/image';
 import styles from './banner.module.css';
 import { useAuth } from '@/context/auth';
 import { useAuthModal } from '@/context/auth-modal';
+import { useState } from 'react';
+import { addCourseToMe } from '@/app/services/user/userApi';
+import Toast from '../ui/toast';
 
-type Props = {
-  onAdd?: () => void | Promise<void>;
-  disabled?: boolean;
-};
-
-export default function Banner({ onAdd, disabled }: Props) {
-  const { isAuthed } = useAuth();
+export default function Banner({ courseId }: { courseId: string }) {
+  const { isAuthed, token } = useAuth();
   const { open } = useAuthModal();
 
-  const label = isAuthed ? 'Добавить курс' : 'Войдите, чтобы добавить курс';
+  const [pending, setPending] = useState(false);
+  const [added, setAdded] = useState(false);
+  const [toastOpen, setToastOpen] = useState(false);
 
-  const handleClick = () => {
-    if (!isAuthed) {
+  const onClick = async () => {
+    if (!isAuthed || !token) {
       open('login');
       return;
     }
-    onAdd?.();
+    setPending(true);
+    try {
+      await addCourseToMe(token, courseId);
+      setAdded(true);
+      setToastOpen(true);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Не удалось добавить курс');
+    } finally {
+      setPending(false);
+    }
   };
 
   return (
@@ -35,8 +44,14 @@ export default function Banner({ onAdd, disabled }: Props) {
             <li>упражнения заряжают бодростью</li>
             <li>помогают противостоять стрессам</li>
           </ul>
-          <button className={`btn ${styles.cta}`} onClick={handleClick} disabled={disabled}>
-            {label}
+          <button className={`btn ${styles.cta}`} onClick={onClick} disabled={pending || added}>
+            {!isAuthed
+              ? 'Войдите, чтобы добавить курс'
+              : added
+                ? 'Добавлено'
+                : pending
+                  ? 'Добавляем…'
+                  : 'Добавить курс'}
           </button>
         </div>
 
@@ -59,6 +74,7 @@ export default function Banner({ onAdd, disabled }: Props) {
           priority
         />
       </div>
+      <Toast open={toastOpen} text="Курс успешно добавлен!" onClose={() => setToastOpen(false)} />
     </section>
   );
 }

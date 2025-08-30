@@ -1,3 +1,7 @@
+.profile {
+  margin-bottom: 280px;
+}
+
 .profile__title {
   color: rgba(0, 0, 0, 1);
   font-family: Roboto;
@@ -67,4 +71,17 @@
   font-family: Roboto;
   font-size: 40px;
   font-weight: 500;
+  margin-bottom: 40px;
+}
+
+.coursesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 40px;
+  justify-items: center;
+  padding: 0;
+  margin: 0;
+}
+.coursesGridItem {
+  list-style: none;
 }

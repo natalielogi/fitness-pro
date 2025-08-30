@@ -3,48 +3,96 @@
 import { useAuth } from '@/context/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { MeResponse, getCurrentUser } from '../services/user/userApi';
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './profile.module.css';
+import { getCurrentUser, removeCourseFromMe } from '../services/user/userApi';
+import { listCourses } from '@/app/services/courses/coursesApi';
+import type { UiCourse } from '@/sharedTypes/types';
+import CourseCard from '@/components/courseCard/courseCard';
 
 export default function ProfilePage() {
   const router = useRouter();
   const { token, email: emailFromCtx, isAuthed, logout } = useAuth();
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [me, setMe] = useState<MeResponse | null>(null);
+
+  const [meEmail, setMeEmail] = useState<string>('');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [allCourses, setAllCourses] = useState<UiCourse[]>([]);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   const loginName = useMemo(() => {
-    const e = me?.email ?? emailFromCtx ?? '';
+    const e = meEmail || emailFromCtx || '';
     const i = e.indexOf('@');
     return i > 0 ? e.slice(0, i) : e;
-  }, [me?.email, emailFromCtx]);
+  }, [meEmail, emailFromCtx]);
 
   useEffect(() => {
-    if (!token) {
+    if (!isAuthed || !token) {
       setLoading(false);
       return;
     }
     let cancelled = false;
+
     (async () => {
       try {
-        const data = await getCurrentUser(token);
-        if (!cancelled) setMe(data);
+        setLoading(true);
+        const [me, courses] = await Promise.all([getCurrentUser(token), listCourses()]);
+        console.log('[profile] me:', me);
+        console.log('[profile] me.selectedCourses:', me.selectedCourses);
+        console.log(
+          '[profile] allCourses ids:',
+          courses.map((c) => c._id),
+        );
+        console.log(
+          '[profile] intersection:',
+          me.selectedCourses.filter((id) => courses.some((c) => c._id === id)),
+        );
+        if (cancelled) return;
+        setMeEmail(me.email);
+        setSelectedIds(me.selectedCourses);
+        setAllCourses(courses);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Ошибка загрузки');
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
+
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [isAuthed, token]);
+
+  const myCourses: UiCourse[] = useMemo(() => {
+    const map = new Map(allCourses.map((c) => [c._id, c]));
+    return selectedIds.map((id) => map.get(id)).filter(Boolean) as UiCourse[];
+  }, [allCourses, selectedIds]);
 
   const onLogout = () => {
     logout();
     router.push('/');
+  };
+
+  const onRemove = async (id: string) => {
+    if (!token) return;
+    setRemovingId(id);
+    try {
+      await removeCourseFromMe(token, id);
+      setSelectedIds((prev) => prev.filter((x) => x !== id));
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Не удалось удалить курс');
+    } finally {
+      setRemovingId(null);
+    }
+  };
+
+  const openWorkoutsModal = (courseId: string) => {
+    // TODO: тут откроем модалку выбора тренировки из курса
+    // пока заглушка:
+    console.log('open workouts for', courseId);
   };
 
   if (!isAuthed) {
@@ -76,7 +124,7 @@ export default function ProfilePage() {
           <h2 id="profile-card-title" className={styles.cardTitle}>
             {loginName || '—'}
           </h2>
-          <div className={styles.cardSubtitle}>Логин: {me?.email ?? emailFromCtx ?? '—'}</div>
+          <div className={styles.cardSubtitle}>Логин: {meEmail || emailFromCtx || '—'}</div>
         </div>
         <button type="button" className={`btn ${styles.profile__logout}`} onClick={onLogout}>
           Выйти
@@ -96,23 +144,25 @@ export default function ProfilePage() {
 
         {!loading &&
           !error &&
-          (me?.selectedCourses?.length ? (
+          (myCourses.length ? (
             <ul className={styles.coursesGrid}>
-              {me.selectedCourses.map((id) => (
-                <li key={id} className={styles.courseCard}>
-                  <div className={styles.courseTitle}>Курс #{id}</div>
-                  <div className={styles.courseNote}>
-                    (заглушка) Подтянем реальные данные из API курсов позже
-                  </div>
-                  <button type="button" className="btn">
-                    Перейти
-                  </button>
+              {myCourses.map((c) => (
+                <li key={c._id} className={styles.coursesGridItem}>
+                  <CourseCard
+                    variant="profile"
+                    {...c}
+                    _id={c._id}
+                    progressPercent={0}
+                    onRemove={onRemove}
+                    removing={removingId === c._id}
+                    onCtaClick={() => openWorkoutsModal(c._id)}
+                  />
                 </li>
               ))}
             </ul>
           ) : (
             <div className={styles.textMuted}>
-              Курсов пока нет. Когда подключим API курсов — покажем карточки.
+              Курсов пока нет. Добавьте любой курс на его странице.
             </div>
           ))}
       </section>

@@ -11,9 +11,9 @@
   margin-bottom: 50px;
 
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr; /* текст : медиа */
+  grid-template-columns: 1.1fr 0.9fr;
   gap: 24px;
-  padding: 40px; /* подогнано под твои отступы */
+  padding: 40px;
   overflow: hidden;
 }
 
@@ -40,13 +40,13 @@
   font-weight: 400;
   line-height: 28px;
   margin: 0;
-  padding-left: 15px; /* обнуляем, сами дадим отступ у li */
+  padding-left: 15px;
   list-style: none;
 }
 
 .list li {
   position: relative;
-  padding-left: 16px; /* расстояние от точки до текста */
+  padding-left: 16px;
   margin-bottom: 8px;
 }
 
@@ -54,12 +54,12 @@
   content: '';
   position: absolute;
   left: 0;
-  top: 50%; /* центр по высоте строки */
-  transform: translateY(-55%); /* сдвинь -45%..-60% как нужно "чуть выше" */
-  width: 4px; /* размер точки */
+  top: 50%;
+  transform: translateY(-55%);
+  width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: currentColor; /* цвет = цвет текста (0.6 чёрный) */
+  background: currentColor;
 }
 
 .cta {
@@ -74,15 +74,15 @@
 }
 
 .media {
-  position: relative; /* база для абсолютных картинок */
+  position: relative;
   z-index: 1;
 }
 
 .athleteWrap {
   position: absolute;
-  right: -20px; /* подгони по макету */
+  right: -20px;
   bottom: -18px;
-  z-index: 2; /* выше .banner */
+  z-index: 2;
   pointer-events: none;
 }
 .athlete {

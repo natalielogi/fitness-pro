@@ -10,19 +10,19 @@ export default async function CoursePage({ params }: { params: Promise<Params> }
   const { slug } = await params;
 
   const courses = await listCourses();
-  const base = courses.find((c) => c.slug === slug);
-  if (!base) {
+  const course = courses.find((c) => c.slug === slug);
+  if (!course) {
     notFound();
   }
 
-  const detail = await getCourseById(base._id);
+  const detail = await getCourseById(course._id);
 
   const suitsYou = detail.fitting ?? [];
   const directions = detail.directions ?? [];
 
   return (
     <section className={`container-1440 ${styles.coursePage}`}>
-      <CourseBanner slug={base.slug} className={styles.coursePage__banner} />
+      <CourseBanner slug={course.slug} className={styles.coursePage__banner} />
 
       {suitsYou.length > 0 && (
         <div className={styles.coursePage__suits}>
@@ -51,7 +51,7 @@ export default async function CoursePage({ params }: { params: Promise<Params> }
         </div>
       )}
 
-      <Banner />
+      <Banner courseId={course._id} />
     </section>
   );
 }
