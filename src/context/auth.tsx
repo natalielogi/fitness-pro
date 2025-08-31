@@ -1,59 +1,59 @@
 'use client';
+import { createContext, useContext, useEffect, useState } from 'react';
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-
-type AuthContextType = {
+type AuthCtx = {
   token: string | null;
   email: string | null;
   isAuthed: boolean;
-  login: (token: string, email: string) => void;
+  isReady: boolean;
+  login: (token: string, email?: string) => void;
   logout: () => void;
 };
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthCtx>({
+  token: null,
+  email: null,
+  isAuthed: false,
+  isReady: false,
+  login: () => {},
+  logout: () => {},
+});
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    const t = localStorage.getItem('token');
-    const e = localStorage.getItem('email');
+    try {
+      const t = localStorage.getItem('token');
+      const e = localStorage.getItem('email');
+      setToken(t);
+      setEmail(e);
+    } finally {
+      setIsReady(true);
+    }
+  }, []);
+
+  const login = (t: string, e?: string) => {
     setToken(t);
-    setEmail(e);
+    if (e) setEmail(e);
+    localStorage.setItem('token', t);
+    if (e) localStorage.setItem('email', e);
+  };
 
-    const onStorage = (ev: StorageEvent) => {
-      if (ev.key === 'token') setToken(localStorage.getItem('token'));
-      if (ev.key === 'email') setEmail(localStorage.getItem('email'));
-    };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, []);
-
-  const login = useCallback((token: string, email: string) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('email', email);
-    setToken(token);
-    setEmail(email);
-  }, []);
-
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('email');
+  const logout = () => {
     setToken(null);
     setEmail(null);
-  }, []);
+    localStorage.removeItem('token');
+    localStorage.removeItem('email');
+  };
 
-  const value = useMemo(
-    () => ({ token, email, isAuthed: !!token, login, logout }),
-    [token, email, login, logout],
+  return (
+    <AuthContext.Provider value={{ token, email, isAuthed: !!token, isReady, login, logout }}>
+      {children}
+    </AuthContext.Provider>
   );
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
-  return ctx;
-}
+export const useAuth = () => useContext(AuthContext);

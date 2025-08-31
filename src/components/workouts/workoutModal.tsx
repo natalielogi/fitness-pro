@@ -15,7 +15,7 @@ const VISITED_STORAGE_KEY = 'visitedWorkoutsByCourse';
 
 export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Props) {
   const router = useRouter();
-  const { token, isAuthed } = useAuth();
+  const { token, isAuthed, isReady } = useAuth();
   const { open: openAuthModal } = useAuthModal();
 
   const isYoga = courseSlug === 'yoga';
@@ -62,12 +62,16 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
   );
 
   const fetchWorkouts = useCallback(async () => {
+    // ждём init авторизации
+    if (!isReady) return;
+
     if (!token) {
       setLoading(false);
       setError('Чтобы посмотреть тренировки, войдите в аккаунт.');
-      openAuthModal();
+      openAuthModal('login');
       return;
     }
+
     setLoading(true);
     setError(null);
     try {
@@ -77,14 +81,14 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) {
         setError('Чтобы посмотреть тренировки, войдите в аккаунт.');
-        openAuthModal();
+        openAuthModal('login');
       } else {
         setError(e instanceof Error ? e.message : 'Не удалось загрузить тренировки');
       }
     } finally {
       setLoading(false);
     }
-  }, [courseId, token, openAuthModal]);
+  }, [courseId, token, isReady, openAuthModal]);
 
   useEffect(() => {
     if (!open) return;
@@ -92,7 +96,7 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
     setSelectedId('');
     setVisited(loadVisited());
     fetchWorkouts();
-  }, [open, courseId, fetchWorkouts, loadVisited]);
+  }, [open, loadVisited, fetchWorkouts]);
 
   useEffect(() => {
     if (!open) return;
@@ -105,23 +109,23 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
 
   const goToWorkout = (id: string) => {
     if (!isAuthed || !token) {
-      openAuthModal();
+      openAuthModal('login');
       return;
     }
     markVisited(id);
     onClose();
-    router.push(`/workouts/${id}`);
+    router.push(`/workouts/${id}?courseId=${encodeURIComponent(courseId)}`);
   };
 
   const start = () => {
     if (!selectedId) return;
     if (!isAuthed || !token) {
-      openAuthModal();
+      openAuthModal('login');
       return;
     }
     markVisited(selectedId);
     onClose();
-    router.push(`/workouts/${selectedId}`);
+    router.push(`/workouts/${selectedId}?courseId=${encodeURIComponent(courseId)}`);
   };
 
   if (!open) return null;
@@ -141,24 +145,24 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
           </h2>
         </div>
 
-        {loading && <div className={styles.state}>Загрузка…</div>}
+        {(!isReady || loading) && <div className={styles.state}>Загрузка…</div>}
 
-        {!loading && error && (
+        {isReady && !loading && error && (
           <div className={styles.state} role="alert">
             {error}
             {!isAuthed && (
-              <button className={styles.retry} onClick={() => openAuthModal()}>
+              <button className={styles.retry} onClick={() => openAuthModal('login')}>
                 Войти
               </button>
             )}
           </div>
         )}
 
-        {!loading && !error && items.length === 0 && (
+        {isReady && !loading && !error && items.length === 0 && (
           <div className={styles.state}>В этом курсе пока нет тренировок.</div>
         )}
 
-        {!loading && !error && items.length > 0 && (
+        {isReady && !loading && !error && items.length > 0 && (
           <ul className={styles.list}>
             {items.map((w, idx) => {
               const title = isYoga ? w.name.split(' / ')[0] : w.name;
@@ -196,7 +200,7 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
           type="button"
           className={`btn ${styles.cta}`}
           onClick={start}
-          disabled={!selectedId || loading}
+          disabled={!selectedId || loading || !isReady}
         >
           Начать
         </button>

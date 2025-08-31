@@ -1,5 +1,4 @@
 /* eslint-disable @next/next/no-img-element */
-
 'use client';
 
 import Link from 'next/link';
@@ -14,8 +13,9 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const { open } = useAuthModal();
-  const { isAuthed, email, logout } = useAuth();
+  const { isAuthed, email, isReady, logout } = useAuth();
 
+  // чтобы избежать гидрации имени на первом рендере
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -29,9 +29,7 @@ export default function Header() {
       if (!menuRef.current) return;
       if (!menuRef.current.contains(e.target as Node)) setMenuOpen(false);
     };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMenuOpen(false);
-    };
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false);
     document.addEventListener('mousedown', onDocClick);
     document.addEventListener('keydown', onKey);
     return () => {
@@ -53,6 +51,8 @@ export default function Header() {
 
   const hideSubtitle = pathname === '/profile' || pathname.startsWith('/workouts');
 
+  const showLogin = !mounted || !isReady || !isAuthed;
+
   return (
     <header className={`container-1440 ${styles.header}`}>
       <div className={styles.header__logoBlock}>
@@ -64,14 +64,14 @@ export default function Header() {
             height={35}
             fetchPriority="high"
             decoding="async"
-          />{' '}
+          />
         </Link>
         {!hideSubtitle && (
           <p className={styles.header__subtitle}>Онлайн-тренировки для занятий дома</p>
-        )}{' '}
+        )}
       </div>
 
-      {!mounted || !isAuthed ? (
+      {showLogin ? (
         <button className={`${styles.header__btn} btn`} onClick={() => open('login')}>
           Войти
         </button>
@@ -117,7 +117,6 @@ export default function Header() {
               </div>
 
               <div className={styles.profileMenu__bottom}>
-                {' '}
                 <button
                   role="menuitem"
                   type="button"

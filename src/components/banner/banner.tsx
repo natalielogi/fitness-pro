@@ -8,7 +8,7 @@ import { addCourseToMe } from '@/app/services/user/userApi';
 import Toast from '../ui/toast';
 
 export default function Banner({ courseId }: { courseId: string }) {
-  const { isAuthed, token } = useAuth();
+  const { isAuthed, token, isReady } = useAuth();
   const { open } = useAuthModal();
 
   const [pending, setPending] = useState(false);
@@ -16,6 +16,8 @@ export default function Banner({ courseId }: { courseId: string }) {
   const [toastOpen, setToastOpen] = useState(false);
 
   const onClick = async () => {
+    if (!isReady) return;
+
     if (!isAuthed || !token) {
       open('login');
       return;

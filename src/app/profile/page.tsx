@@ -15,7 +15,7 @@ import { ApiError } from '@/app/services/api/apiError';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { token, email: emailFromCtx, isAuthed, logout } = useAuth();
+  const { token, email: emailFromCtx, isAuthed, isReady, logout } = useAuth();
   const { open: openAuthModal } = useAuthModal();
 
   const [loading, setLoading] = useState(true);
@@ -35,6 +35,8 @@ export default function ProfilePage() {
 
   useEffect(() => {
     let cancelled = false;
+
+    if (!isReady) return;
 
     if (!isAuthed || !token) {
       setLoading(false);
@@ -68,7 +70,7 @@ export default function ProfilePage() {
     return () => {
       cancelled = true;
     };
-  }, [isAuthed, token, openAuthModal]);
+  }, [isReady, isAuthed, token, openAuthModal]);
 
   const myCourses: UiCourse[] = useMemo(() => {
     const map = new Map(allCourses.map((c) => [c._id, c]));

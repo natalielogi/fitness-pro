@@ -93,7 +93,8 @@
 .progressFill {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #22c55e, #16a34a);
+  border-radius: 50px;
+  background: rgba(0, 193, 255, 1);
   transition: width 0.25s ease-in-out;
 }
 
@@ -118,4 +119,65 @@
 }
 .cta:active {
   transform: translateY(1px);
+}
+
+.toastBackdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 1100;
+  pointer-events: none;
+}
+
+.toastCard {
+  pointer-events: auto;
+  width: 426px;
+  border-radius: 30px;
+  box-shadow: 0px 4px 67px -12px rgba(0, 0, 0, 0.13);
+  background: #fff;
+  padding: 40px;
+  color: #000;
+  text-align: center;
+  animation: toast-pop 0.2s ease-out;
+}
+
+.toastTitle {
+  font-family:
+    Roboto,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Arial,
+    sans-serif;
+  font-size: clamp(24px, 4vw, 40px);
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0 0 16px;
+}
+
+.toastIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+  background: #a3e635;
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+@keyframes toast-pop {
+  from {
+    transform: translateY(6px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }

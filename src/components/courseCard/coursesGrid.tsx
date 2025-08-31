@@ -11,7 +11,7 @@ import { addCourseToMe, getCurrentUser } from '@/app/services/user/userApi';
 import Toast from '../ui/toast';
 
 export default function Coursesgrid() {
-  const { isAuthed, token } = useAuth();
+  const { isAuthed, token, isReady } = useAuth();
   const { open } = useAuthModal();
 
   const [items, setItems] = useState<UiCourse[]>([]);
@@ -36,6 +36,8 @@ export default function Coursesgrid() {
   }, []);
 
   useEffect(() => {
+    if (!isReady) return;
+
     (async () => {
       if (!isAuthed || !token) return;
       try {
@@ -43,7 +45,7 @@ export default function Coursesgrid() {
         setSelectedIds(new Set(me.selectedCourses));
       } catch {}
     })();
-  }, [isAuthed, token]);
+  }, [isReady, isAuthed, token]);
 
   const onAdd = async (id: string) => {
     if (!isAuthed || !token) {

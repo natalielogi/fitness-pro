@@ -1,0 +1,83 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+}
+
+.card {
+  border-radius: 30px;
+  box-shadow: 0px 4px 67px -12px rgba(0, 0, 0, 0.13);
+  background: rgba(255, 255, 255, 1);
+  padding: 40px;
+  width: 426px;
+}
+
+.title {
+  color: rgba(0, 0, 0, 1);
+  font-family: StratosSkyeng;
+  font-size: 32px;
+  font-weight: 400;
+  margin-bottom: 48px;
+}
+
+.form {
+  display: grid;
+  gap: 20px;
+}
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.label {
+  color: rgba(0, 0, 0, 1);
+  font-family: Roboto;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 21px;
+  margin-bottom: 10px;
+}
+
+.input {
+  font-family: Roboto;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 21px;
+  color: rgba(0, 0, 0, 1);
+  box-sizing: border-box;
+  border: 1px solid rgba(208, 206, 206, 1);
+  border-radius: 8px;
+  padding: 16px 18px 16px 18px;
+}
+
+.input::placeholder {
+  color: rgba(208, 206, 206, 1);
+}
+
+.input::-webkit-outer-spin-button,
+.input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.actions {
+  margin-top: 34px;
+}
+
+.primary {
+  width: 346px;
+  padding: 16px 26px 16px 26px;
+  color: rgba(0, 0, 0, 1);
+  font-family: Roboto;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 21px;
+}
