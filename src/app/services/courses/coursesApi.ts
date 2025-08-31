@@ -1,5 +1,6 @@
 import type { UiCourse } from '@/sharedTypes/types';
 import { API_BASE } from '../constants';
+import { fetchJson } from '../api/fetchJson';
 
 export type CourseListDto = {
   _id: string;
@@ -29,30 +30,11 @@ export type CourseDetailDto = {
   workouts: string[];
 };
 
-function hasMessage(v: unknown): v is { message: string } {
-  return (
-    typeof v === 'object' &&
-    v !== null &&
-    'message' in v &&
-    typeof (v as Record<string, unknown>).message === 'string'
-  );
-}
-
-async function parse(res: Response): Promise<unknown> {
-  const text = await res.text();
-  try {
-    return text ? JSON.parse(text) : null;
-  } catch {
-    return text;
-  }
-}
-
 const difficultyMap = {
   начальный: 'Лёгкий',
   средний: 'Средний',
   сложный: 'Сложный',
 } as const;
-
 type UiDifficulty = (typeof difficultyMap)[keyof typeof difficultyMap];
 
 function mapDifficulty(src?: string): UiDifficulty {
@@ -87,20 +69,8 @@ function pickImage(slug: string): string {
 }
 
 export async function listCourses(): Promise<UiCourse[]> {
-  const res = await fetch(`${API_BASE}/courses`, {
-    method: 'GET',
-    cache: 'no-store',
-  });
-
-  const data = await parse(res);
-
-  if (!res.ok) {
-    const msg = hasMessage(data) ? data.message : `HTTP ${res.status}`;
-    throw new Error(msg);
-  }
-
+  const data = await fetchJson<unknown>(`${API_BASE}/courses`, { method: 'GET' });
   if (!Array.isArray(data)) return [];
-
   return (data as CourseListDto[]).map((dto) => {
     const slug = slugify(dto.nameEN, dto.nameRU, dto._id);
     return {
@@ -116,29 +86,20 @@ export async function listCourses(): Promise<UiCourse[]> {
 }
 
 export async function getCourseById(id: string): Promise<CourseDetailDto> {
-  const res = await fetch(`${API_BASE}/courses/${id}`, {
+  const d = await fetchJson<Partial<CourseDetailDto> | null>(`${API_BASE}/courses/${id}`, {
     method: 'GET',
-    cache: 'no-store',
   });
-  const data = await parse(res);
-
-  if (!res.ok) {
-    const msg = hasMessage(data) ? data.message : `HTTP ${res.status}`;
-    throw new Error(msg);
-  }
-
-  const d = data as Partial<CourseDetailDto> | null;
 
   return {
     _id: d?._id ?? id,
     nameRU: d?.nameRU ?? '',
     nameEN: d?.nameEN,
     description: d?.description,
-    directions: Array.isArray(d?.directions) ? d.directions : [],
-    fitting: Array.isArray(d?.fitting) ? d.fitting : [],
+    directions: Array.isArray(d?.directions) ? d!.directions! : [],
+    fitting: Array.isArray(d?.fitting) ? d!.fitting! : [],
     difficulty: d?.difficulty,
     durationInDays: d?.durationInDays,
     dailyDurationInMinutes: d?.dailyDurationInMinutes,
-    workouts: Array.isArray(d?.workouts) ? d.workouts : [],
+    workouts: Array.isArray(d?.workouts) ? d!.workouts! : [],
   };
 }

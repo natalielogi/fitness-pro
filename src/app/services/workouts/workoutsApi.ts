@@ -1,18 +1,14 @@
+import { WorkoutDetail, WorkoutListItem } from '@/sharedTypes/types';
 import { API_BASE } from '../constants';
+import { fetchJson } from '../api/fetchJson';
 
-export type Workout = {
-  _id: string;
-  name: string;
-  video: string;
-  exercises: unknown[];
-};
-
-export async function listWorkoutsByCourse(courseId: string, token?: string): Promise<Workout[]> {
-  const res = await fetch(`${API_BASE}/courses/${courseId}/workouts`, {
+export function listWorkoutsByCourse(courseId: string, token?: string) {
+  return fetchJson<WorkoutListItem[]>(`${API_BASE}/courses/${courseId}/workouts`, {
     method: 'GET',
-    headers: { Authorization: `Bearer ${token}` },
-    cache: 'no-store',
+    token,
   });
-  if (!res.ok) throw new Error(`Ошибка загрузки тренировок: ${res.status}`);
-  return (await res.json()) as Workout[];
+}
+
+export function getWorkout(workoutId: string, token?: string) {
+  return fetchJson<WorkoutDetail>(`${API_BASE}/workouts/${workoutId}`, { method: 'GET', token });
 }

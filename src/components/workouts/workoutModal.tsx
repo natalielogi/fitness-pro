@@ -1,29 +1,28 @@
 'use client';
 
-import { Workout, listWorkoutsByCourse } from '@/app/services/workouts/workoutsApi';
+import { listWorkoutsByCourse } from '@/app/services/workouts/workoutsApi';
+import { type WorkoutListItem } from '@/sharedTypes/types';
 import { useAuth } from '@/context/auth';
+import { useAuthModal } from '@/context/auth-modal';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import styles from './workoutModal.module.css';
+import { ApiError } from '@/app/services/api/apiError';
 
-type Props = {
-  courseId: string;
-  courseSlug?: string;
-  open: boolean;
-  onClose: () => void;
-};
+type Props = { courseId: string; courseSlug?: string; open: boolean; onClose: () => void };
 
 const VISITED_STORAGE_KEY = 'visitedWorkoutsByCourse';
 
 export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Props) {
   const router = useRouter();
-  const { token } = useAuth();
+  const { token, isAuthed } = useAuth();
+  const { open: openAuthModal } = useAuthModal();
 
   const isYoga = courseSlug === 'yoga';
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [items, setItems] = useState<Workout[]>([]);
+  const [items, setItems] = useState<WorkoutListItem[]>([]);
   const [selectedId, setSelectedId] = useState<string>('');
   const [visited, setVisited] = useState<Set<string>>(new Set());
 
@@ -45,9 +44,7 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
         const all = (raw ? JSON.parse(raw) : {}) as Record<string, string[]>;
         all[courseId] = Array.from(next);
         localStorage.setItem(VISITED_STORAGE_KEY, JSON.stringify(all));
-      } catch {
-        /* ignore */
-      }
+      } catch {}
     },
     [courseId],
   );
@@ -65,18 +62,29 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
   );
 
   const fetchWorkouts = useCallback(async () => {
+    if (!token) {
+      setLoading(false);
+      setError('Чтобы посмотреть тренировки, войдите в аккаунт.');
+      openAuthModal();
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const data = await listWorkoutsByCourse(courseId, token ?? undefined);
+      const data = await listWorkoutsByCourse(courseId, token);
       setItems(data);
       setSelectedId('');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Не удалось загрузить тренировки');
+      if (e instanceof ApiError && e.status === 401) {
+        setError('Чтобы посмотреть тренировки, войдите в аккаунт.');
+        openAuthModal();
+      } else {
+        setError(e instanceof Error ? e.message : 'Не удалось загрузить тренировки');
+      }
     } finally {
       setLoading(false);
     }
-  }, [courseId, token]);
+  }, [courseId, token, openAuthModal]);
 
   useEffect(() => {
     if (!open) return;
@@ -96,6 +104,10 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
   }, [open, onClose]);
 
   const goToWorkout = (id: string) => {
+    if (!isAuthed || !token) {
+      openAuthModal();
+      return;
+    }
     markVisited(id);
     onClose();
     router.push(`/workouts/${id}`);
@@ -103,6 +115,10 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
 
   const start = () => {
     if (!selectedId) return;
+    if (!isAuthed || !token) {
+      openAuthModal();
+      return;
+    }
     markVisited(selectedId);
     onClose();
     router.push(`/workouts/${selectedId}`);
@@ -130,9 +146,11 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
         {!loading && error && (
           <div className={styles.state} role="alert">
             {error}
-            <button type="button" className={styles.retry} onClick={fetchWorkouts}>
-              Повторить
-            </button>
+            {!isAuthed && (
+              <button className={styles.retry} onClick={() => openAuthModal()}>
+                Войти
+              </button>
+            )}
           </div>
         )}
 
@@ -145,7 +163,6 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
             {items.map((w, idx) => {
               const title = isYoga ? w.name.split(' / ')[0] : w.name;
               const isVisited = visited.has(w._id);
-
               return (
                 <li key={w._id} className={styles.item}>
                   <label className={styles.row} onClick={() => goToWorkout(w._id)}>

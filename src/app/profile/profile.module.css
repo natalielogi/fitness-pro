@@ -85,3 +85,7 @@
 .coursesGridItem {
   list-style: none;
 }
+
+.pageBlank {
+  min-height: 80vh;
+}

@@ -93,7 +93,7 @@ export default function RegisterForm() {
         autoComplete="new-password"
         required
         disabled={isSubmitting}
-        className={`${styles.authForm__input} ${error.email ? styles.inputError : ''}`}
+        className={`${styles.authForm__input} ${error.password ? styles.inputError : ''}`}
         placeholder="Пароль"
         aria-invalid={!!error.password}
       />
@@ -107,7 +107,7 @@ export default function RegisterForm() {
         autoComplete="new-password"
         required
         disabled={isSubmitting}
-        className={`${styles.authForm__input} ${error.email ? styles.inputError : ''}`}
+        className={`${styles.authForm__input} ${error.passwordConfirm ? styles.inputError : ''}`}
         placeholder="Повторите пароль"
         aria-invalid={!!error.passwordConfirm}
       />
