@@ -3,6 +3,7 @@
 import { useParams, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import styles from './workout.module.css';
+
 import { getWorkout } from '@/app/services/workouts/workoutsApi';
 import type { WorkoutDetail } from '@/sharedTypes/types';
 import { ApiError } from '@/app/services/api/apiError';
@@ -10,6 +11,7 @@ import { useAuth } from '@/context/auth';
 import { useAuthModal } from '@/context/auth-modal';
 import { getWorkoutProgress, saveWorkoutProgress } from '@/app/services/progress/progressApi';
 import ProgressModal from '@/components/workouts/progressModal/progressModal';
+import Toast from '@/components/ui/toast/toast';
 
 type ProgressMap = Record<string, number>;
 
@@ -36,6 +38,7 @@ export default function WorkoutPage() {
 
   const [isProgressOpen, setProgressOpen] = useState(false);
   const [isSaving, setSaving] = useState(false);
+
   const [toastOk, setToastOk] = useState(false);
 
   useEffect(() => {
@@ -130,7 +133,6 @@ export default function WorkoutPage() {
 
       setProgressOpen(false);
       setToastOk(true);
-      setTimeout(() => setToastOk(false), 1500);
     } catch (e) {
       alert(e instanceof Error ? e.message : 'Не удалось сохранить прогресс');
     } finally {
@@ -245,16 +247,7 @@ export default function WorkoutPage() {
         onSave={submitProgress}
       />
 
-      {toastOk && (
-        <div className={styles.toastBackdrop} aria-live="polite">
-          <div className={styles.toastCard}>
-            <div className={styles.toastTitle}>Ваш прогресс засчитан!</div>
-            <div className={styles.toastIcon} aria-hidden="true">
-              ✓
-            </div>
-          </div>
-        </div>
-      )}
+      <Toast open={toastOk} text="Ваш прогресс засчитан!" onClose={() => setToastOk(false)} />
     </div>
   );
 }

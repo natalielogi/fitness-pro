@@ -22,15 +22,23 @@ export default function ProgressModal({
   onClose,
   onSave,
 }: ProgressModalProps) {
-  const [valuesStr, setValuesStr] = useState<string[]>(() =>
-    exercises.map((_, i) => (initial[i] === 0 || initial[i] == null ? '' : String(initial[i]))),
-  );
+  const [valuesStr, setValuesStr] = useState<string[]>([]);
+  const initialRef = useRef<number[]>(initial);
+
+  useEffect(() => {
+    initialRef.current = initial;
+  }, [initial]);
+
   useEffect(() => {
     if (!open) return;
+
     setValuesStr(
-      exercises.map((_, i) => (initial[i] === 0 || initial[i] == null ? '' : String(initial[i]))),
+      Array.from({ length: exercises.length }, (_, i) => {
+        const v = initialRef.current[i];
+        return v === 0 || v == null ? '' : String(v);
+      }),
     );
-  }, [open, exercises, initial]);
+  }, [open, exercises.length]);
 
   useEffect(() => {
     if (!open) return;
@@ -66,36 +74,40 @@ export default function ProgressModal({
           onSubmit={(e) => {
             e.preventDefault();
             const valuesNum = valuesStr.map((s) => {
-              const n = Number(s);
-              return Number.isFinite(n) && n >= 0 ? n : 0; // пустая строка → 0
+              const n = Number(String(s).replace(',', '.'));
+              return Number.isFinite(n) && n >= 0 ? n : 0;
             });
             onSave(valuesNum);
           }}
         >
-          {exercises.map((label, i) => (
-            <label key={i} className={styles.field}>
-              <span className={styles.label}>Сколько раз вы сделали {label.toLowerCase()}?</span>
-              <input
-                ref={i === 0 ? firstInputRef : undefined}
-                type="number"
-                min={0}
-                inputMode="numeric"
-                className={styles.input}
-                value={valuesStr[i]}
-                placeholder="0"
-                onChange={(e) => {
-                  const raw = e.target.value.replace(',', '.');
-                  if (raw === '' || /^\d+(\.\d+)?$/.test(raw)) {
-                    setValuesStr((prev) => {
-                      const next = [...prev];
-                      next[i] = raw;
-                      return next;
-                    });
-                  }
-                }}
-              />
-            </label>
-          ))}
+          {exercises.map((label, i) => {
+            const hasValue = valuesStr[i] !== '' && valuesStr[i] != null;
+            return (
+              <label key={i} className={styles.field}>
+                <span className={styles.label}>Сколько раз вы сделали {label.toLowerCase()}?</span>
+                <input
+                  ref={i === 0 ? firstInputRef : undefined}
+                  type="number"
+                  min={0}
+                  inputMode="numeric"
+                  className={`${styles.input} ${hasValue ? styles.inputHasValue : ''}`}
+                  value={valuesStr[i] ?? ''}
+                  placeholder="0"
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(',', '.');
+                    if (raw === '' || /^\d+(\.\d+)?$/.test(raw)) {
+                      setValuesStr((prev) => {
+                        const next = [...prev];
+                        next[i] = raw;
+                        return next;
+                      });
+                    }
+                  }}
+                  disabled={saving}
+                />
+              </label>
+            );
+          })}
 
           <div className={styles.actions}>
             <button type="submit" className={`btn ${styles.primary}`} disabled={saving}>

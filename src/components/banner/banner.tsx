@@ -1,19 +1,36 @@
 'use client';
+
 import Image from 'next/image';
 import styles from './banner.module.css';
 import { useAuth } from '@/context/auth';
 import { useAuthModal } from '@/context/auth-modal';
-import { useState } from 'react';
-import { addCourseToMe } from '@/app/services/user/userApi';
-import Toast from '../ui/toast';
+import { useEffect, useState } from 'react';
+import Toast from '@/components/ui/toast/toast';
+import { useCourseSelection } from '@/app/hooks/useCourseSelection';
 
 export default function Banner({ courseId }: { courseId: string }) {
   const { isAuthed, token, isReady } = useAuth();
   const { open } = useAuthModal();
 
-  const [pending, setPending] = useState(false);
-  const [added, setAdded] = useState(false);
+  const { added, pending, add, remove } = useCourseSelection({
+    courseId,
+    token,
+    isReady,
+    isAuthed,
+    openAuthModal: open,
+  });
+
   const [toastOpen, setToastOpen] = useState(false);
+  const [toastText, setToastText] = useState('');
+
+  const disabled = pending || !isReady;
+  const btnText = !isAuthed
+    ? 'Войдите, чтобы продолжить'
+    : pending
+      ? 'Подождите…'
+      : added
+        ? 'Удалить курс'
+        : 'Добавить курс';
 
   const onClick = async () => {
     if (!isReady) return;
@@ -22,17 +39,26 @@ export default function Banner({ courseId }: { courseId: string }) {
       open('login');
       return;
     }
-    setPending(true);
+
     try {
-      await addCourseToMe(token, courseId);
-      setAdded(true);
+      if (added) {
+        await remove();
+        setToastText('Курс успешно удалён!');
+      } else {
+        await add();
+        setToastText('Курс успешно добавлен!');
+      }
       setToastOpen(true);
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Не удалось добавить курс');
-    } finally {
-      setPending(false);
+      alert(e instanceof Error ? e.message : 'Не удалось выполнить действие');
     }
   };
+
+  useEffect(() => {
+    if (!toastOpen) return;
+    const t = setTimeout(() => setToastOpen(false), 1800);
+    return () => clearTimeout(t);
+  }, [toastOpen]);
 
   return (
     <section className={styles.wrap}>
@@ -46,14 +72,14 @@ export default function Banner({ courseId }: { courseId: string }) {
             <li>упражнения заряжают бодростью</li>
             <li>помогают противостоять стрессам</li>
           </ul>
-          <button className={`btn ${styles.cta}`} onClick={onClick} disabled={pending || added}>
-            {!isAuthed
-              ? 'Войдите, чтобы добавить курс'
-              : added
-                ? 'Добавлено'
-                : pending
-                  ? 'Добавляем…'
-                  : 'Добавить курс'}
+
+          <button
+            className={`btn ${styles.cta}`}
+            onClick={onClick}
+            disabled={disabled}
+            aria-busy={pending}
+          >
+            {btnText}
           </button>
         </div>
 
@@ -66,6 +92,7 @@ export default function Banner({ courseId }: { courseId: string }) {
           </div>
         </div>
       </div>
+
       <div className={styles.athleteWrap}>
         <Image
           src="/banner/athlete.png"
@@ -76,7 +103,8 @@ export default function Banner({ courseId }: { courseId: string }) {
           priority
         />
       </div>
-      <Toast open={toastOpen} text="Курс успешно добавлен!" onClose={() => setToastOpen(false)} />
+
+      <Toast open={toastOpen} onClose={() => setToastOpen(false)} text={toastText} />
     </section>
   );
 }

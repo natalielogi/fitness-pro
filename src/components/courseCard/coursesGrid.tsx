@@ -8,7 +8,7 @@ import { listCourses } from '@/app/services/courses/coursesApi';
 import { useAuth } from '@/context/auth';
 import { useAuthModal } from '@/context/auth-modal';
 import { addCourseToMe, getCurrentUser } from '@/app/services/user/userApi';
-import Toast from '../ui/toast';
+import Toast from '../ui/toast/toast';
 
 export default function Coursesgrid() {
   const { isAuthed, token, isReady } = useAuth();

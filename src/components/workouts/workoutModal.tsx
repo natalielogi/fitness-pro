@@ -8,10 +8,9 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import styles from './workoutModal.module.css';
 import { ApiError } from '@/app/services/api/apiError';
+import { getCourseProgress } from '@/app/services/progress/progressApi';
 
 type Props = { courseId: string; courseSlug?: string; open: boolean; onClose: () => void };
-
-const VISITED_STORAGE_KEY = 'visitedWorkoutsByCourse';
 
 export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Props) {
   const router = useRouter();
@@ -24,45 +23,9 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
   const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<WorkoutListItem[]>([]);
   const [selectedId, setSelectedId] = useState<string>('');
-  const [visited, setVisited] = useState<Set<string>>(new Set());
-
-  const loadVisited = useCallback((): Set<string> => {
-    try {
-      const raw = localStorage.getItem(VISITED_STORAGE_KEY);
-      if (!raw) return new Set();
-      const obj = JSON.parse(raw) as Record<string, string[]>;
-      return new Set(obj[courseId] ?? []);
-    } catch {
-      return new Set();
-    }
-  }, [courseId]);
-
-  const saveVisited = useCallback(
-    (next: Set<string>) => {
-      try {
-        const raw = localStorage.getItem(VISITED_STORAGE_KEY);
-        const all = (raw ? JSON.parse(raw) : {}) as Record<string, string[]>;
-        all[courseId] = Array.from(next);
-        localStorage.setItem(VISITED_STORAGE_KEY, JSON.stringify(all));
-      } catch {}
-    },
-    [courseId],
-  );
-
-  const markVisited = useCallback(
-    (id: string) => {
-      setVisited((prev) => {
-        const next = new Set(prev);
-        next.add(id);
-        saveVisited(next);
-        return next;
-      });
-    },
-    [saveVisited],
-  );
+  const [completed, setCompleted] = useState<Set<string>>(new Set());
 
   const fetchWorkouts = useCallback(async () => {
-    // ждём init авторизации
     if (!isReady) return;
 
     if (!token) {
@@ -75,9 +38,18 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
     setLoading(true);
     setError(null);
     try {
-      const data = await listWorkoutsByCourse(courseId, token);
+      const [data, progress] = await Promise.all([
+        listWorkoutsByCourse(courseId, token),
+        getCourseProgress(courseId, token),
+      ]);
+
       setItems(data);
       setSelectedId('');
+
+      const doneIds = new Set(
+        (progress.workoutsProgress ?? []).filter((w) => w.workoutCompleted).map((w) => w.workoutId),
+      );
+      setCompleted(doneIds);
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) {
         setError('Чтобы посмотреть тренировки, войдите в аккаунт.');
@@ -94,9 +66,9 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
     if (!open) return;
     setItems([]);
     setSelectedId('');
-    setVisited(loadVisited());
+    setCompleted(new Set());
     fetchWorkouts();
-  }, [open, loadVisited, fetchWorkouts]);
+  }, [open, fetchWorkouts]);
 
   useEffect(() => {
     if (!open) return;
@@ -112,7 +84,6 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
       openAuthModal('login');
       return;
     }
-    markVisited(id);
     onClose();
     router.push(`/workouts/${id}?courseId=${encodeURIComponent(courseId)}`);
   };
@@ -123,7 +94,6 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
       openAuthModal('login');
       return;
     }
-    markVisited(selectedId);
     onClose();
     router.push(`/workouts/${selectedId}?courseId=${encodeURIComponent(courseId)}`);
   };
@@ -166,7 +136,7 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
           <ul className={styles.list}>
             {items.map((w, idx) => {
               const title = isYoga ? w.name.split(' / ')[0] : w.name;
-              const isVisited = visited.has(w._id);
+              const isDone = completed.has(w._id);
               return (
                 <li key={w._id} className={styles.item}>
                   <label className={styles.row} onClick={() => goToWorkout(w._id)}>
@@ -179,7 +149,7 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
                       className={styles.radio}
                     />
                     <span
-                      className={`${styles.bullet} ${isVisited ? styles.bullet_done : ''}`}
+                      className={`${styles.bullet} ${isDone ? styles.bullet_done : ''}`}
                       aria-hidden="true"
                     />
                     <div className={styles.texts}>

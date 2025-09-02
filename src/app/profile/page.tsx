@@ -3,17 +3,17 @@
 import { useAuth } from '@/context/auth';
 import { useAuthModal } from '@/context/auth-modal';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import styles from './profile.module.css';
-import { getCurrentUser, removeCourseFromMe } from '../services/user/userApi';
-import { getCourseById, listCourses } from '@/app/services/courses/coursesApi';
+
+import { getCurrentUser, removeCourseFromMe } from '@/app/services/user/userApi';
+import { listCourses } from '@/app/services/courses/coursesApi';
 import type { UiCourse } from '@/sharedTypes/types';
 import CourseCard from '@/components/courseCard/courseCard';
 import WorkoutModal from '@/components/workouts/workoutModal';
 import { ApiError } from '@/app/services/api/apiError';
-import { getCourseProgress } from '../services/progress/progressApi';
-import { getWorkout } from '../services/workouts/workoutsApi';
+import { useCourseProgress } from '@/app/hooks/useCourseProgress';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -29,8 +29,10 @@ export default function ProfilePage() {
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [workoutCourse, setWorkoutCourse] = useState<{ id: string; slug: string } | null>(null);
 
-  const [coursePercents, setCoursePercents] = useState<Record<string, number>>({});
-  const totalsRef = useRef<Record<string, number>>({});
+  const { coursePercents, recomputePercents, resetCourse, resettingId } = useCourseProgress(
+    selectedIds,
+    { token, isAuthed, isReady, openAuthModal },
+  );
 
   const loginName = useMemo(() => {
     const e = meEmail || emailFromCtx || '';
@@ -46,7 +48,6 @@ export default function ProfilePage() {
       openAuthModal('login');
       return;
     }
-
     let cancelled = false;
     (async () => {
       try {
@@ -69,88 +70,10 @@ export default function ProfilePage() {
         if (!cancelled) setLoading(false);
       }
     })();
-
     return () => {
       cancelled = true;
     };
   }, [isReady, isAuthed, token, openAuthModal]);
-
-  useEffect(() => {
-    const setIds = new Set(selectedIds);
-    for (const key of Object.keys(totalsRef.current)) {
-      if (!setIds.has(key)) delete totalsRef.current[key];
-    }
-  }, [selectedIds]);
-
-  const recomputePercents = useCallback(async () => {
-    if (!isReady || !isAuthed || !token) return;
-
-    if (selectedIds.length === 0) {
-      setCoursePercents({});
-      return;
-    }
-
-    const entries = await Promise.all(
-      selectedIds.map(async (courseId) => {
-        try {
-          let total = totalsRef.current[courseId];
-          if (total == null) {
-            const detail = await getCourseById(courseId);
-            total = Array.isArray(detail.workouts) ? detail.workouts.length : 0;
-            totalsRef.current[courseId] = total;
-          }
-          if (total === 0) return [courseId, 0] as const;
-
-          const courseProg = await getCourseProgress(courseId, token);
-
-          const completed = courseProg.workoutsProgress.filter((w) => w.workoutCompleted).length;
-          if (completed > 0) {
-            const pctDone = Math.min(100, Math.round((completed / total) * 100));
-            return [courseId, pctDone] as const;
-          }
-
-          if (courseProg.workoutsProgress.length > 0) {
-            const workoutsWithProg = courseProg.workoutsProgress;
-
-            const details = await Promise.all(
-              workoutsWithProg.map((w) => getWorkout(w.workoutId, token)),
-            );
-
-            let sumFractions = 0;
-            let counted = 0;
-
-            for (let i = 0; i < workoutsWithProg.length; i++) {
-              const wProg = workoutsWithProg[i];
-              const wDet = details[i];
-
-              const required = (wDet.exercises ?? []).reduce(
-                (acc, ex) => acc + (ex.quantity || 0),
-                0,
-              );
-              const done = (wProg.progressData ?? []).reduce((acc, n) => acc + (n || 0), 0);
-
-              if (required > 0) {
-                const frac = Math.max(0, Math.min(1, done / required));
-                sumFractions += frac;
-                counted += 1;
-              }
-            }
-
-            if (counted > 0) {
-              const pctApprox = Math.min(100, Math.round((sumFractions / total) * 100));
-              return [courseId, pctApprox] as const;
-            }
-          }
-
-          return [courseId, 0] as const;
-        } catch {
-          return [courseId, 0] as const;
-        }
-      }),
-    );
-
-    setCoursePercents(Object.fromEntries(entries));
-  }, [isReady, isAuthed, token, selectedIds]);
 
   useEffect(() => {
     recomputePercents();
@@ -167,28 +90,21 @@ export default function ProfilePage() {
   };
 
   const onRemove = async (id: string) => {
-    if (!isAuthed || !token) {
-      openAuthModal('login');
-      return;
-    }
+    if (!isAuthed || !token || removingId) return;
     setRemovingId(id);
-
-    setCoursePercents((prev) => {
-      const next = { ...prev };
-      delete next[id];
-      return next;
-    });
-    delete totalsRef.current[id];
-
+    setSelectedIds((prev) => prev.filter((x) => x !== id));
     try {
-      await removeCourseFromMe(token, id);
-      setSelectedIds((prev) => prev.filter((x) => x !== id));
-    } catch (e) {
-      if (e instanceof ApiError && e.status === 401) openAuthModal('login');
-      else alert(e instanceof Error ? e.message : 'Не удалось удалить курс');
-    } finally {
-      setRemovingId(null);
-    }
+      const raw = localStorage.getItem('visitedWorkoutsByCourse');
+      if (raw) {
+        const all = JSON.parse(raw) as Record<string, string[]>;
+        if (all[id]) {
+          delete all[id];
+          localStorage.setItem('visitedWorkoutsByCourse', JSON.stringify(all));
+        }
+      }
+    } catch {}
+    await Promise.allSettled([removeCourseFromMe(token, id), resetCourse(id, { silent: true })]);
+    setRemovingId(null);
   };
 
   const openWorkoutsModal = (courseId: string, slug: string) => {
@@ -201,12 +117,8 @@ export default function ProfilePage() {
 
   const closeWorkoutsModal = () => setWorkoutCourse(null);
 
-  if (!isReady) {
-    return <main className={`container-1440 ${styles.pageBlank}`} />;
-  }
-  if (!isAuthed) {
-    return <main className={`container-1440 ${styles.pageBlank}`} />;
-  }
+  if (!isReady) return <main className={`container-1440 ${styles.pageBlank}`} />;
+  if (!isAuthed) return <main className={`container-1440 ${styles.pageBlank}`} />;
 
   return (
     <main className={`container-1440 ${styles.profile}`}>
@@ -254,19 +166,31 @@ export default function ProfilePage() {
           !error &&
           (myCourses.length ? (
             <ul className={styles.coursesGrid}>
-              {myCourses.map((c) => (
-                <li key={c._id} className={styles.coursesGridItem}>
-                  <CourseCard
-                    variant="profile"
-                    {...c}
-                    _id={c._id}
-                    progressPercent={coursePercents[c._id] ?? 0}
-                    onRemove={onRemove}
-                    removing={removingId === c._id}
-                    onCtaClick={() => openWorkoutsModal(c._id, c.slug)}
-                  />
-                </li>
-              ))}
+              {myCourses.map((c) => {
+                const pct = coursePercents[c._id] ?? 0;
+                const isResetting = resettingId === c._id;
+                const onCta =
+                  pct === 100
+                    ? () => resetCourse(c._id, { silent: true })
+                    : () => openWorkoutsModal(c._id, c.slug);
+
+                const ctaLabel = pct === 100 && isResetting ? 'Сбрасываем…' : undefined;
+
+                return (
+                  <li key={c._id} className={styles.coursesGridItem}>
+                    <CourseCard
+                      variant="profile"
+                      {...c}
+                      _id={c._id}
+                      progressPercent={pct}
+                      onRemove={onRemove}
+                      removing={removingId === c._id}
+                      onCtaClick={onCta}
+                      ctaLabel={ctaLabel}
+                    />
+                  </li>
+                );
+              })}
             </ul>
           ) : (
             <div className={styles.textMuted}>

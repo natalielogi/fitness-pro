@@ -42,3 +42,17 @@ export function saveWorkoutProgress(
     },
   );
 }
+
+export function resetWorkoutProgress(courseId: string, workoutId: string, token: string) {
+  return fetchJson<{ message?: string }>(
+    `${API_BASE}/courses/${encodeURIComponent(courseId)}/workouts/${encodeURIComponent(workoutId)}/reset`,
+    { method: 'PATCH', token },
+  );
+}
+
+export function resetCourseProgress(courseId: string, token: string) {
+  return fetchJson<{ message?: string }>(`${API_BASE}/courses/${courseId}/reset`, {
+    method: 'PATCH',
+    token,
+  });
+}
