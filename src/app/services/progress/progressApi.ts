@@ -14,19 +14,16 @@ export type CourseProgressDto = {
 };
 
 export function getCourseProgress(courseId: string, token: string) {
-  return fetchJson<CourseProgressDto>(`${API_BASE}/users/me/progress?courseId=${courseId}`, {
-    method: 'GET',
-    token,
-  });
+  return fetchJson<CourseProgressDto>(
+    `${API_BASE}/users/me/progress?courseId=${encodeURIComponent(courseId)}`,
+    { method: 'GET', token },
+  );
 }
 
 export function getWorkoutProgress(courseId: string, workoutId: string, token: string) {
   return fetchJson<WorkoutProgressDto>(
-    `${API_BASE}/users/me/progress?courseId=${courseId}&workoutId=${workoutId}`,
-    {
-      method: 'GET',
-      token,
-    },
+    `${API_BASE}/users/me/progress?courseId=${encodeURIComponent(courseId)}&workoutId=${encodeURIComponent(workoutId)}`,
+    { method: 'GET', token },
   );
 }
 
@@ -36,9 +33,12 @@ export function saveWorkoutProgress(
   progressData: number[],
   token: string,
 ) {
-  return fetchJson<{ message?: string }>(`${API_BASE}/courses/${courseId}/workouts/${workoutId}`, {
-    method: 'PATCH',
-    token,
-    body: JSON.stringify({ progressData }),
-  });
+  return fetchJson<{ message?: string }>(
+    `${API_BASE}/courses/${encodeURIComponent(courseId)}/workouts/${encodeURIComponent(workoutId)}`,
+    {
+      method: 'PATCH',
+      token,
+      body: JSON.stringify({ progressData }),
+    },
+  );
 }

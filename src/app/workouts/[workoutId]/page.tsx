@@ -3,7 +3,6 @@
 import { useParams, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import styles from './workout.module.css';
-
 import { getWorkout } from '@/app/services/workouts/workoutsApi';
 import type { WorkoutDetail } from '@/sharedTypes/types';
 import { ApiError } from '@/app/services/api/apiError';
@@ -152,7 +151,6 @@ export default function WorkoutPage() {
   if (loading) return <div className={`container-1440 ${styles.container}`}>Загрузка…</div>;
 
   if (authRequired && !isAuthed) {
-    // фон без лишнего UI — модалка логина уже открыта
     return <main className={`container-1440 ${styles.container}`} />;
   }
 
