@@ -41,7 +41,7 @@ export default function CourseCard({
   variant = 'catalog',
 }: Props) {
   const isProfile = variant === 'profile';
-  const showAddBtn = !isProfile && !isSelected;
+  const showAddBtn = !isProfile && (!isAuthed || !isSelected);
 
   const progress = Math.max(0, Math.min(progressPercent, 100));
 

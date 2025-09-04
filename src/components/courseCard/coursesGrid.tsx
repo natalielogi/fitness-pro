@@ -38,12 +38,18 @@ export default function Coursesgrid() {
   useEffect(() => {
     if (!isReady) return;
 
+    if (!isAuthed || !token) {
+      setSelectedIds(new Set());
+      return;
+    }
+
     (async () => {
-      if (!isAuthed || !token) return;
       try {
         const me = await getCurrentUser(token);
         setSelectedIds(new Set(me.selectedCourses));
-      } catch {}
+      } catch {
+        setSelectedIds(new Set());
+      }
     })();
   }, [isReady, isAuthed, token]);
 
@@ -55,7 +61,11 @@ export default function Coursesgrid() {
     setAddingId(id);
     try {
       await addCourseToMe(token, id);
-      setSelectedIds((prev) => new Set(prev).add(id));
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.add(id);
+        return next;
+      });
       setToastOpen(true);
     } catch (e) {
       alert(e instanceof Error ? e.message : 'Не удалось добавить курс');
@@ -65,11 +75,9 @@ export default function Coursesgrid() {
   };
 
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
   return (
     <section className="container-1440">
       {loading && <p style={{ padding: '24px 0' }}>Загрузка…</p>}
@@ -88,7 +96,7 @@ export default function Coursesgrid() {
                 {...c}
                 onAdd={onAdd}
                 adding={addingId === c._id}
-                isSelected={selectedIds.has(c._id)}
+                isSelected={isAuthed ? selectedIds.has(c._id) : false}
                 isAuthed={isAuthed}
                 onRequireAuth={() => open('login')}
               />
@@ -100,6 +108,7 @@ export default function Coursesgrid() {
           </button>
         </>
       )}
+
       <Toast open={toastOpen} text="Курс успешно добавлен!" onClose={() => setToastOpen(false)} />
     </section>
   );
