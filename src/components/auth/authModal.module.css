@@ -6,12 +6,17 @@
   display: grid;
   place-items: center;
   padding: 16px;
+
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .authCard {
   position: relative;
   width: 360px;
+  max-width: min(360px, 100%);
   padding: 40px;
+  box-sizing: border-box;
 
   border-radius: 30px;
   background: #fff;
@@ -133,5 +138,11 @@
   to {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+@media (max-width: 375px) {
+  .authCard {
+    width: 343px;
   }
 }

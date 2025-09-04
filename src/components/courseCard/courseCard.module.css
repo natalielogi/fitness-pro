@@ -273,3 +273,26 @@
     gap: 24px;
   }
 }
+
+@media (max-width: 375px) {
+  .card {
+    width: 343px;
+    padding-bottom: 0px;
+  }
+
+  .card__title {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 28px;
+  }
+
+  .back__btn {
+    width: 127px;
+    height: 52px;
+    padding: 16px 26px 16px 26px;
+    margin-left: auto;
+    margin-right: 0;
+    margin-top: 24px;
+    margin-bottom: 29px;
+  }
+}

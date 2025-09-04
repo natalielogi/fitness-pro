@@ -48,18 +48,34 @@
 
 @media (max-width: 1439px) and (min-width: 376px) {
   .title__block {
-    flex-wrap: wrap; /* позволяем пузырю уходить на новую строку */
-    row-gap: 12px; /* немного воздуха между заголовком и пузырём */
+    flex-wrap: wrap;
+    row-gap: 12px;
   }
+}
 
-  .title__text {
-    height: auto; /* убираем фиксированную высоту */
-    line-height: 1.15; /* более гибкий перенос строк */
-  }
+.title__text {
+  height: auto;
+  line-height: 1.15;
 }
 
 @media (max-width: 640px) {
   .title__block {
     row-gap: 8px;
+  }
+}
+
+@media (max-width: 375px) {
+  .title {
+    margin-bottom: 34px;
+  }
+
+  .title__text {
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 38px;
+  }
+
+  .title__bubble {
+    display: none;
   }
 }

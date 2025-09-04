@@ -15,7 +15,6 @@ export default function Header() {
   const { open } = useAuthModal();
   const { isAuthed, email, isReady, logout } = useAuth();
 
-  // чтобы избежать гидрации имени на первом рендере
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -54,17 +53,14 @@ export default function Header() {
   const showLogin = !mounted || !isReady || !isAuthed;
 
   return (
-    <header className={`container-1440 ${styles.header}`}>
+    <header
+      className={`container-1440 ${styles.header} ${
+        showLogin ? styles.header_guest : styles.header_authed
+      }`}
+    >
       <div className={styles.header__logoBlock}>
         <Link href="/" className={styles.header__logo}>
-          <img
-            src="/logo.svg"
-            alt="SkyFitnessPro"
-            width={220}
-            height={35}
-            fetchPriority="high"
-            decoding="async"
-          />
+          <img src="/logo.svg" alt="SkyFitnessPro" width={220} height={35} />
         </Link>
         {!hideSubtitle && (
           <p className={styles.header__subtitle}>Онлайн-тренировки для занятий дома</p>
@@ -95,8 +91,6 @@ export default function Header() {
             <span className={styles.header__name}>{loginName}</span>
             <svg
               className={styles.header__caretIcon}
-              width={12}
-              height={12}
               viewBox="0 0 12.7695 12.7695"
               aria-hidden="true"
             >
@@ -115,7 +109,6 @@ export default function Header() {
                 <div className={styles.profileMenu__title}>{loginName}</div>
                 <div className={styles.profileMenu__email}>{email}</div>
               </div>
-
               <div className={styles.profileMenu__bottom}>
                 <button
                   role="menuitem"
