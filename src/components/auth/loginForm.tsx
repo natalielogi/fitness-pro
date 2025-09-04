@@ -6,6 +6,7 @@ import Image from 'next/image';
 import styles from './authModal.module.css';
 import { getApiErrorMessage, loginUser } from '@/app/services/auth/authApi';
 import { useAuth } from '@/context/auth';
+import { useAuthButtons } from '@/app/hooks/useAuthButtons';
 
 type LoginFieldErrors = { email?: string; password?: string; form?: string };
 
@@ -30,6 +31,16 @@ export default function LoginForm() {
   }, []);
 
   const { login } = useAuth();
+
+  const block = email.trim() === '' || password.trim() === '';
+  const {
+    disabledPrimary,
+    disabledSecondary,
+    inactive,
+    ariaBusy,
+    ariaDisabledPrimary,
+    ariaDisabledSecondary,
+  } = useAuthButtons(isSubmitting, block);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,15 +104,23 @@ export default function LoginForm() {
         </p>
       )}
 
-      <button type="submit" className={`btn ${styles.button} ${styles.buttonPrimary}`}>
+      <button
+        type="submit"
+        className={`btn ${styles.button} ${styles.buttonPrimary} ${inactive ? styles.inactive : ''}`}
+        disabled={disabledPrimary}
+        aria-disabled={ariaDisabledPrimary}
+        aria-busy={ariaBusy}
+      >
         Войти
       </button>
 
       <button
         type="button"
         onClick={() => switchMode('register')}
-        className={`btn ${styles.button} ${styles.buttonSecondary}`}
-        disabled={isSubmitting}
+        className={`btn ${styles.button} ${styles.buttonSecondary} ${inactive ? styles.inactive : ''}`}
+        disabled={disabledSecondary}
+        aria-disabled={ariaDisabledSecondary}
+        aria-busy={ariaBusy}
       >
         Зарегистрироваться
       </button>

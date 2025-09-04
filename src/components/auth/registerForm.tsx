@@ -5,6 +5,7 @@ import { useAuthModal } from '@/context/auth-modal';
 import Image from 'next/image';
 import styles from './authModal.module.css';
 import { getApiErrorMessage, registerUser } from '@/app/services/auth/authApi';
+import { useAuthButtons } from '@/app/hooks/useAuthButtons';
 
 type RegisterFieldErrors = {
   email?: string;
@@ -35,12 +36,26 @@ export default function RegisterForm() {
     inputRef.current?.focus();
   }, []);
 
+  const mismatch =
+    password.length > 0 && passwordConfirm.length > 0 && password !== passwordConfirm;
+
+  const block = email.trim() === '' || password.trim() === '' || passwordConfirm.trim() === '';
+
+  const {
+    disabledPrimary,
+    disabledSecondary,
+    inactive,
+    ariaBusy,
+    ariaDisabledPrimary,
+    ariaDisabledSecondary,
+  } = useAuthButtons(isSubmitting, block);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setOk(null);
     setError({});
 
-    if (password !== passwordConfirm) {
+    if (mismatch) {
       setError({ passwordConfirm: 'Пароли не совпадают' });
       return;
     }
@@ -122,15 +137,23 @@ export default function RegisterForm() {
         </p>
       )}
 
-      <button type="submit" className={`btn ${styles.button} ${styles.buttonPrimary}`}>
+      <button
+        type="submit"
+        className={`btn ${styles.button} ${styles.buttonPrimary} ${inactive ? styles.inactive : ''}`}
+        disabled={disabledPrimary}
+        aria-disabled={ariaDisabledPrimary}
+        aria-busy={ariaBusy}
+      >
         Зарегистрироваться
       </button>
 
       <button
         type="button"
         onClick={() => switchMode('login')}
-        className={`btn ${styles.button} ${styles.buttonSecondary}`}
-        disabled={isSubmitting}
+        className={`btn ${styles.button} ${styles.buttonSecondary} ${inactive ? styles.inactive : ''}`}
+        disabled={disabledSecondary}
+        aria-disabled={ariaDisabledSecondary}
+        aria-busy={ariaBusy}
       >
         Войти
       </button>

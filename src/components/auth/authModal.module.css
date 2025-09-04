@@ -53,7 +53,6 @@
 .button {
   width: 280px;
   height: 52px;
-  color: rgba(0, 0, 0, 1);
   font-size: 18px;
   font-weight: 400;
   line-height: 21px;
@@ -72,6 +71,18 @@
   background: rgba(198, 255, 0, 1);
 }
 
+.buttonPrimary:active:not(:disabled) {
+  background: rgba(0, 0, 0, 1);
+  color: rgba(255, 255, 255, 1);
+}
+
+.buttonPrimary:disabled,
+.buttonPrimary.inactive {
+  background: rgba(247, 247, 247, 1);
+  color: rgba(153, 153, 153, 1);
+  cursor: not-allowed;
+}
+
 .buttonSecondary {
   background-color: #fff;
   border: 1px solid rgba(0, 0, 0, 1);
@@ -79,6 +90,21 @@
 
 .buttonSecondary:hover:not(:disabled) {
   background: rgba(247, 247, 247, 1);
+}
+
+.buttonSecondary:active:not(:disabled) {
+  background: rgba(233, 236, 237, 1);
+}
+
+.buttonSecondary:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.buttonSecondary.inactive {
+  border: 1px solid rgba(153, 153, 153, 1);
+  border-radius: 46px;
+  color: rgba(153, 153, 153, 1);
 }
 
 .inputError {
