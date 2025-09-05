@@ -20,6 +20,7 @@ export default function AuthModal() {
 
   const modal = (
     <div
+      data-testid="auth-backdrop"
       className={styles.authBackdrop}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) close();
