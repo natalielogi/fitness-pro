@@ -120,25 +120,31 @@ export default function ProfilePage() {
   if (!isReady) return <main className={`container-1440 ${styles.pageBlank}`} />;
   if (!isAuthed) return <main className={`container-1440 ${styles.pageBlank}`} />;
 
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
   return (
     <main className={`container-1440 ${styles.profile}`}>
       <h1 className={styles.profile__title}>Профиль</h1>
 
       <section aria-labelledby="profile-card-title" className={styles.profile__card}>
-        <Image
-          src="/profile_page.svg"
-          alt=""
-          width={197}
-          height={197}
-          priority
-          className={styles.profile__avatar}
-        />
+        <div className={styles.profile__avatarBox}>
+          <Image
+            src="/profile_page.svg"
+            alt=""
+            width={197}
+            height={197}
+            priority
+            className={styles.profile__avatar}
+          />
+        </div>
+
         <div className={styles.profile__info}>
           <h2 id="profile-card-title" className={styles.cardTitle}>
             {loginName || '—'}
           </h2>
           <div className={styles.cardSubtitle}>Логин: {meEmail || emailFromCtx || '—'}</div>
         </div>
+
         <button type="button" className={`btn ${styles.profile__logout}`} onClick={onLogout}>
           Выйти
         </button>
@@ -162,41 +168,52 @@ export default function ProfilePage() {
           </p>
         )}
 
-        {!loading &&
-          !error &&
-          (myCourses.length ? (
-            <ul className={styles.coursesGrid}>
-              {myCourses.map((c) => {
-                const pct = coursePercents[c._id] ?? 0;
-                const isResetting = resettingId === c._id;
-                const onCta =
-                  pct === 100
-                    ? () => resetCourse(c._id, { silent: true })
-                    : () => openWorkoutsModal(c._id, c.slug);
+        {!loading && !error && (
+          <>
+            {myCourses.length ? (
+              <ul className={styles.coursesGrid}>
+                {myCourses.map((c) => {
+                  const pct = coursePercents[c._id] ?? 0;
+                  const isResetting = resettingId === c._id;
+                  const onCta =
+                    pct === 100
+                      ? () => resetCourse(c._id, { silent: true })
+                      : () => openWorkoutsModal(c._id, c.slug);
 
-                const ctaLabel = pct === 100 && isResetting ? 'Сбрасываем…' : undefined;
+                  const ctaLabel = pct === 100 && isResetting ? 'Сбрасываем…' : undefined;
 
-                return (
-                  <li key={c._id} className={styles.coursesGridItem}>
-                    <CourseCard
-                      variant="profile"
-                      {...c}
-                      _id={c._id}
-                      progressPercent={pct}
-                      onRemove={onRemove}
-                      removing={removingId === c._id}
-                      onCtaClick={onCta}
-                      ctaLabel={ctaLabel}
-                    />
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <div className={styles.textMuted}>
-              Курсов пока нет. Добавьте любой курс на его странице.
-            </div>
-          ))}
+                  return (
+                    <li key={c._id} className={styles.coursesGridItem}>
+                      <CourseCard
+                        variant="profile"
+                        {...c}
+                        _id={c._id}
+                        progressPercent={pct}
+                        onRemove={onRemove}
+                        removing={removingId === c._id}
+                        onCtaClick={onCta}
+                        ctaLabel={ctaLabel}
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <div className={styles.textMuted}>
+                Курсов пока нет. Добавьте любой курс на его странице.
+              </div>
+            )}
+
+            <button
+              type="button"
+              className={`btn ${styles.back__btn} ${styles.onlyMobile}`}
+              onClick={scrollToTop}
+              aria-label="Прокрутить наверх"
+            >
+              Наверх ↑
+            </button>
+          </>
+        )}
       </section>
     </main>
   );

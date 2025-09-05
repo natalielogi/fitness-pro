@@ -24,7 +24,7 @@
   align-items: center;
 }
 
-.profile__avatar {
+.profile__avatarBox {
   grid-column: 1;
   grid-row: 1 / span 2;
   justify-self: start;
@@ -76,7 +76,7 @@
 
 .coursesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(0, 360px));
   gap: 40px;
   justify-items: center;
   padding: 0;
@@ -88,4 +88,93 @@
 
 .pageBlank {
   min-height: 80vh;
+}
+
+.onlyMobile {
+  display: none;
+}
+
+@media (max-width: 375px) {
+  .profile__title {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 28px;
+    margin-bottom: 24px;
+  }
+
+  .profile__card {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 343px;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 24px;
+  }
+
+  .profile__avatarBox {
+    align-self: center;
+  }
+
+  .profile__avatar {
+    width: 141px;
+    height: 141px;
+    display: block;
+    margin: 0;
+  }
+
+  .profile__info {
+    margin-top: 30px;
+    margin-bottom: 20px;
+    gap: 20px;
+  }
+
+  .cardTitle {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 28px;
+  }
+
+  .cardSubtitle {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 19px;
+  }
+
+  .profile__logout {
+    width: 100%;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 19px;
+  }
+
+  .courses__title {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 28px;
+    margin-bottom: 24px;
+  }
+
+  .coursesGrid {
+    gap: 24px;
+  }
+
+  .onlyMobile {
+    display: inline-flex;
+  }
+
+  .back__btn {
+    display: block;
+    width: 127px;
+    height: 52px;
+    padding: 16px 26px;
+    margin-left: auto;
+    margin-right: 0;
+    margin-top: 24px;
+    margin-bottom: 29px;
+  }
+
+  .profile {
+    margin-bottom: 40px;
+  }
 }

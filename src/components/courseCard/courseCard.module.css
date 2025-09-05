@@ -295,4 +295,10 @@
     margin-top: 24px;
     margin-bottom: 29px;
   }
+
+  .card__cta {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 19px;
+  }
 }
