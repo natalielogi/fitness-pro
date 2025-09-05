@@ -62,6 +62,10 @@ export default function Banner({ courseId }: { courseId: string }) {
 
   return (
     <section className={styles.wrap}>
+      <div className={styles.loopGlobal} aria-hidden="true">
+        <img src="/banner/loop.svg" alt="" className={styles.loop} />
+      </div>
+
       <div className={styles.banner}>
         <div className={styles.colLeft}>
           <h3 className={styles.title}>Начните путь к новому телу</h3>
@@ -72,7 +76,6 @@ export default function Banner({ courseId }: { courseId: string }) {
             <li>упражнения заряжают бодростью</li>
             <li>помогают противостоять стрессам</li>
           </ul>
-
           <button
             className={`btn ${styles.cta}`}
             onClick={onClick}
@@ -82,15 +85,10 @@ export default function Banner({ courseId }: { courseId: string }) {
             {btnText}
           </button>
         </div>
+      </div>
 
-        <div className={styles.media}>
-          <div className={styles.loopWrap}>
-            <img src="/banner/loop.svg" alt="" aria-hidden="true" className={styles.loop} />
-          </div>
-          <div className={styles.arcWrap}>
-            <img src="/banner/arc.svg" alt="" aria-hidden="true" className={styles.arc} />
-          </div>
-        </div>
+      <div className={styles.arcGlobal} aria-hidden="true">
+        <img src="/banner/arc.svg" alt="" className={styles.arcImg} />
       </div>
 
       <div className={styles.athleteWrap}>

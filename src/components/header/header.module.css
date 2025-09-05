@@ -59,6 +59,11 @@
   margin-right: 4px;
 }
 
+.header__caretIcon {
+  width: 10px;
+  height: 10px;
+}
+
 .header__name {
   color: rgba(0, 0, 0, 1);
   font-size: 24px;
