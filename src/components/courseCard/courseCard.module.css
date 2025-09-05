@@ -302,3 +302,20 @@
     line-height: 19px;
   }
 }
+
+@media (hover: none), (pointer: coarse), (max-width: 480px) {
+  .card__addBtn[data-tooltip]::after,
+  .card__removeBtn[data-tooltip]::after,
+  .card__addBtn:hover::after,
+  .card__addBtn:focus-visible::after,
+  .card__removeBtn:hover::after,
+  .card__removeBtn:focus-visible::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  .card__addBtn:hover,
+  .card__removeBtn:hover {
+    transform: none !important;
+  }
+}
