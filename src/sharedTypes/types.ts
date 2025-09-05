@@ -9,3 +9,23 @@ export type UiCourse = {
 };
 
 export type Course = Omit<UiCourse, 'slug'>;
+
+export type Exercise = {
+  _id: string;
+  name: string;
+  quantity: number;
+};
+
+export type WorkoutListItem = {
+  _id: string;
+  name: string;
+  video: string;
+  exercises?: Exercise[];
+};
+
+export type WorkoutDetail = {
+  _id: string;
+  name: string;
+  video: string;
+  exercises: Exercise[];
+};

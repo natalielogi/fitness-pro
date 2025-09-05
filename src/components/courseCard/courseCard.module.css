@@ -8,7 +8,8 @@
 .card {
   display: block;
   position: relative;
-  width: 360px;
+  width: 100%;
+  max-width: 360px;
   min-height: 501px;
   padding: 0 0 15px 0;
   border-radius: 30px;
@@ -264,4 +265,57 @@
   margin-left: auto;
   margin-right: auto;
   text-align: center;
+}
+
+@media (max-width: 400px) {
+  .courses {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 375px) {
+  .card {
+    width: 343px;
+    padding-bottom: 0px;
+  }
+
+  .card__title {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 28px;
+  }
+
+  .back__btn {
+    width: 127px;
+    height: 52px;
+    padding: 16px 26px 16px 26px;
+    margin-left: auto;
+    margin-right: 0;
+    margin-top: 24px;
+    margin-bottom: 29px;
+  }
+
+  .card__cta {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 19px;
+  }
+}
+
+@media (hover: none), (pointer: coarse), (max-width: 480px) {
+  .card__addBtn[data-tooltip]::after,
+  .card__removeBtn[data-tooltip]::after,
+  .card__addBtn:hover::after,
+  .card__addBtn:focus-visible::after,
+  .card__removeBtn:hover::after,
+  .card__removeBtn:focus-visible::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  .card__addBtn:hover,
+  .card__removeBtn:hover {
+    transform: none !important;
+  }
 }

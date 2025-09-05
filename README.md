@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+SkyFitnessPro
 
-## Getting Started
+Приложение с курсами домашних тренировок: каталог курсов, профиль пользователя, страница курса и тренировки, модальные окна (аутентификация, выбор тренировки, ввод прогресса), тост-уведомления. Сделан акцент на адаптив (десктоп → мобильный ≤ 375px), доступность, безопасность ввода и тесты.
 
-First, run the development server:
+Стек:
+Next.js (App Router), React 18, TypeScript
+CSS Modules (+ немного Tailwind как утилити в глобале)
+Jest + @testing-library/react (jsdom)
+ESLint (строгий TS, без any)
+Next/Image, next/navigation
+Локальное хранение токена (localStorage) через контекст
 
-```bash
+Установка и запуск:
+
+# 1) зависимости
+
+npm ci
+
+# 2) дев-сервер
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# 3) типы и линт
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+npm run typecheck
+npm run lint
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# 4) тесты
 
-## Learn More
+npm test
 
-To learn more about Next.js, take a look at the following resources:
+# покрытие (опционально)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+npm test -- --coverage
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# 5) прод-сборка
 
-## Deploy on Vercel
+npm run build
+npm run start
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Структура(сокращенно):
+src/
+app/
+(страницы Next.js App Router)
+components/
+auth/ # модалка логина/регистрации и формы
+banner/ # баннеры курса/общий баннер с «атлетом»
+courseCard/ # карточка курса (главная + профиль)
+workouts/ # модалка выбора тренировки и ввода прогресса
+ui/toast/ # тост-уведомления
+context/
+auth.tsx # контекст аутентификации (token/email в localStorage)
+auth-modal.tsx # контекст управления модалкой входа
+app/services/ # api-клиенты (courses, user)
+lib/
+sanitize.ts # безопасная очистка пользовательского ввода
+sharedTypes/ # типы
+**tests**/ # Jest + RTL тесты
+jest.setup.ts # конфигурация окружения тестов
+jest.config.js
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Основные фичи:
+Аутентификация
+Контекст AuthProvider: хранит token и email (localStorage), методы login/logout.
+Сессия истекла → открываем модалку входа.
+Безопасность: неиспользуемые данные очищаются при logout.
+
+Модальные окна
+AuthModal, WorkoutModal, ProgressModal:
+— центрирование, backdrop на весь вьюпорт (100dvw/100dvh), блокировка прокрутки body.modal-open.
+— мобильные размеры: ширина 343px, отступы 24px, ограничение по высоте max-height: calc(100dvh - 32px).
+— закрытие по клику в подложку и ESC (по необходимости).
+Toast: центр экрана, на мобиле — ужатые размеры/шрифты.
+
+Подсказки на иконках (+/–)
+Десктоп: CSS-тултипы через ::after.
+Мобилка (≤ 375px): тултипы отключены (display: none; pointer-events: none), чтобы ничего не «вылазило».
+
+Тесты:
+
+Конфиг: jest.config.js (на базе next/jest), testEnvironment: jsdom, setupFilesAfterEnv: jest.setup.ts.
+**tests**/smoke.test.tsx — дымовой тест рендера.
+**tests**/safeInput.test.tsx — проверка экранирования <script> на change/paste и на blur.
+**tests**/authModal.test.tsx — клики по карточке/подложке: карточка не закрывает, подложка — закрывает.
+**tests**/coursesgrid.auth.test.tsx — поведение кнопки «Добавить» для гостя/авторизованного.
+**tests**/courseCard.test.tsx — рендер карточки курса (главная/профиль), обработчики, прогресс.
+jest.setup.ts:
+Моки next/image, window.scrollTo, контекста auth-modal (шпионы на open/close), при необходимости — роутера.
+
+Запуск:
+npm test
+npm test -- --coverage

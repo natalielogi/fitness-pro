@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+
 import { UiCourse } from '@/sharedTypes/types';
 import Image from 'next/image';
 import styles from './courseCard.module.css';
@@ -41,7 +43,7 @@ export default function CourseCard({
   variant = 'catalog',
 }: Props) {
   const isProfile = variant === 'profile';
-  const showAddBtn = !isProfile && !isSelected;
+  const showAddBtn = !isProfile && (!isAuthed || !isSelected);
 
   const progress = Math.max(0, Math.min(progressPercent, 100));
 

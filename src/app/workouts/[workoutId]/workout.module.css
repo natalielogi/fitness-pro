@@ -1,0 +1,171 @@
+.container {
+  max-width: 1120px;
+  padding: 24px 16px 64px;
+  margin-bottom: 260px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+
+.header__title {
+  color: rgba(0, 0, 0, 1);
+  font-family: Roboto;
+  font-size: 60px;
+  font-weight: 500;
+  line-height: 70px;
+}
+
+.videoWrap {
+  border-radius: 30px;
+  width: 100%;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  margin-bottom: 40px;
+}
+
+.videoRatio {
+  position: relative;
+  padding-top: 56.25%;
+}
+
+.iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.panel {
+  border-radius: 30px;
+  box-shadow: 0px 4px 67px -12px rgba(0, 0, 0, 0.13);
+  background: rgba(255, 255, 255, 1);
+  padding: 40px;
+  width: 100%;
+}
+
+.panel__title {
+  color: rgba(0, 0, 0, 1);
+  font-family: StratosSkyeng;
+  font-size: 32px;
+  font-weight: 400;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px 60px;
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 40px;
+  align-items: center;
+}
+
+.rowTop {
+  margin-bottom: 10px;
+}
+
+.exName,
+.exPercentInline {
+  color: rgba(0, 0, 0, 1);
+  font-family: Roboto;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 21px;
+}
+
+.item {
+  min-width: 0;
+}
+
+.progressBar {
+  border-radius: 50px;
+  background: rgba(247, 247, 247, 1);
+  width: min(100%, 320px);
+  height: 6px;
+}
+
+.progressFill {
+  height: 100%;
+  width: 0%;
+  border-radius: 50px;
+  background: rgba(0, 193, 255, 1);
+  transition: width 0.25s ease-in-out;
+}
+
+.progressLabel {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.cta {
+  padding: 16px 26px 16px 26px;
+  color: rgba(0, 0, 0, 1);
+  font-family: Roboto;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 21px;
+  width: 320px;
+}
+
+.cta:hover {
+  filter: brightness(0.95);
+}
+.cta:active {
+  transform: translateY(1px);
+}
+@media (max-width: 375px) {
+  .container {
+    padding-top: 0;
+    margin-bottom: 40px;
+  }
+
+  .header {
+    margin-bottom: 24px;
+  }
+
+  .header__title {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 28px;
+  }
+
+  .videoWrap {
+    margin-bottom: 24px;
+  }
+
+  .panel {
+    padding: 30px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    justify-items: stretch;
+  }
+
+  .rowTop {
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+  }
+
+  .progressBar {
+    width: 100% !important;
+    max-width: none;
+  }
+
+  .cta {
+    width: 100%;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 21px;
+  }
+}

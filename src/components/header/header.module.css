@@ -59,6 +59,11 @@
   margin-right: 4px;
 }
 
+.header__caretIcon {
+  width: 10px;
+  height: 10px;
+}
+
 .header__name {
   color: rgba(0, 0, 0, 1);
   font-size: 24px;
@@ -103,4 +108,38 @@
 
 .header__profileBtn {
   cursor: pointer;
+}
+
+@media (max-width: 375px) {
+  .header {
+    margin-bottom: 40px;
+  }
+
+  .header__btn {
+    width: 83px;
+    height: 36px;
+    padding: 8px 16px 8px 16px;
+  }
+
+  .header__subtitle {
+    display: none;
+  }
+
+  .header__profileIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .header__name {
+    display: none;
+  }
+
+  .header__caretIcon {
+    width: 8px;
+    height: 4px;
+  }
+
+  .header__profileBtn {
+    gap: 10px;
+  }
 }

@@ -1,5 +1,4 @@
 /* eslint-disable @next/next/no-img-element */
-
 'use client';
 
 import Link from 'next/link';
@@ -14,7 +13,7 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const { open } = useAuthModal();
-  const { isAuthed, email, logout } = useAuth();
+  const { isAuthed, email, isReady, logout } = useAuth();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -29,9 +28,7 @@ export default function Header() {
       if (!menuRef.current) return;
       if (!menuRef.current.contains(e.target as Node)) setMenuOpen(false);
     };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMenuOpen(false);
-    };
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false);
     document.addEventListener('mousedown', onDocClick);
     document.addEventListener('keydown', onKey);
     return () => {
@@ -53,25 +50,24 @@ export default function Header() {
 
   const hideSubtitle = pathname === '/profile' || pathname.startsWith('/workouts');
 
+  const showLogin = !mounted || !isReady || !isAuthed;
+
   return (
-    <header className={`container-1440 ${styles.header}`}>
+    <header
+      className={`container-1440 ${styles.header} ${
+        showLogin ? styles.header_guest : styles.header_authed
+      }`}
+    >
       <div className={styles.header__logoBlock}>
         <Link href="/" className={styles.header__logo}>
-          <img
-            src="/logo.svg"
-            alt="SkyFitnessPro"
-            width={220}
-            height={35}
-            fetchPriority="high"
-            decoding="async"
-          />{' '}
+          <img src="/logo.svg" alt="SkyFitnessPro" width={220} height={35} />
         </Link>
         {!hideSubtitle && (
           <p className={styles.header__subtitle}>Онлайн-тренировки для занятий дома</p>
-        )}{' '}
+        )}
       </div>
 
-      {!mounted || !isAuthed ? (
+      {showLogin ? (
         <button className={`${styles.header__btn} btn`} onClick={() => open('login')}>
           Войти
         </button>
@@ -95,8 +91,6 @@ export default function Header() {
             <span className={styles.header__name}>{loginName}</span>
             <svg
               className={styles.header__caretIcon}
-              width={12}
-              height={12}
               viewBox="0 0 12.7695 12.7695"
               aria-hidden="true"
             >
@@ -115,9 +109,7 @@ export default function Header() {
                 <div className={styles.profileMenu__title}>{loginName}</div>
                 <div className={styles.profileMenu__email}>{email}</div>
               </div>
-
               <div className={styles.profileMenu__bottom}>
-                {' '}
                 <button
                   role="menuitem"
                   type="button"

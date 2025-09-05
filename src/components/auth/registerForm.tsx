@@ -5,6 +5,8 @@ import { useAuthModal } from '@/context/auth-modal';
 import Image from 'next/image';
 import styles from './authModal.module.css';
 import { getApiErrorMessage, registerUser } from '@/app/services/auth/authApi';
+import { useAuthButtons } from '@/app/hooks/useAuthButtons';
+import SafeInput from '../inputs/safeInput';
 
 type RegisterFieldErrors = {
   email?: string;
@@ -35,12 +37,26 @@ export default function RegisterForm() {
     inputRef.current?.focus();
   }, []);
 
+  const mismatch =
+    password.length > 0 && passwordConfirm.length > 0 && password !== passwordConfirm;
+
+  const block = email.trim() === '' || password.trim() === '' || passwordConfirm.trim() === '';
+
+  const {
+    disabledPrimary,
+    disabledSecondary,
+    inactive,
+    ariaBusy,
+    ariaDisabledPrimary,
+    ariaDisabledSecondary,
+  } = useAuthButtons(isSubmitting, block);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setOk(null);
     setError({});
 
-    if (password !== passwordConfirm) {
+    if (mismatch) {
       setError({ passwordConfirm: 'Пароли не совпадают' });
       return;
     }
@@ -69,7 +85,7 @@ export default function RegisterForm() {
         priority
       />
 
-      <input
+      <SafeInput
         id="reg-email"
         name="email"
         ref={inputRef}
@@ -84,7 +100,7 @@ export default function RegisterForm() {
         aria-invalid={!!error.email}
       />
 
-      <input
+      <SafeInput
         id="reg-pass"
         name="password"
         type="password"
@@ -93,12 +109,12 @@ export default function RegisterForm() {
         autoComplete="new-password"
         required
         disabled={isSubmitting}
-        className={`${styles.authForm__input} ${error.email ? styles.inputError : ''}`}
+        className={`${styles.authForm__input} ${error.password ? styles.inputError : ''}`}
         placeholder="Пароль"
         aria-invalid={!!error.password}
       />
 
-      <input
+      <SafeInput
         id="reg-pass2"
         name="passwordConfirm"
         type="password"
@@ -107,7 +123,7 @@ export default function RegisterForm() {
         autoComplete="new-password"
         required
         disabled={isSubmitting}
-        className={`${styles.authForm__input} ${error.email ? styles.inputError : ''}`}
+        className={`${styles.authForm__input} ${error.passwordConfirm ? styles.inputError : ''}`}
         placeholder="Повторите пароль"
         aria-invalid={!!error.passwordConfirm}
       />
@@ -122,15 +138,23 @@ export default function RegisterForm() {
         </p>
       )}
 
-      <button type="submit" className={`btn ${styles.button} ${styles.buttonPrimary}`}>
+      <button
+        type="submit"
+        className={`btn ${styles.button} ${styles.buttonPrimary} ${inactive ? styles.inactive : ''}`}
+        disabled={disabledPrimary}
+        aria-disabled={ariaDisabledPrimary}
+        aria-busy={ariaBusy}
+      >
         Зарегистрироваться
       </button>
 
       <button
         type="button"
         onClick={() => switchMode('login')}
-        className={`btn ${styles.button} ${styles.buttonSecondary}`}
-        disabled={isSubmitting}
+        className={`btn ${styles.button} ${styles.buttonSecondary} ${inactive ? styles.inactive : ''}`}
+        disabled={disabledSecondary}
+        aria-disabled={ariaDisabledSecondary}
+        aria-busy={ariaBusy}
       >
         Войти
       </button>
