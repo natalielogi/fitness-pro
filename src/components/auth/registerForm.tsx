@@ -6,6 +6,7 @@ import Image from 'next/image';
 import styles from './authModal.module.css';
 import { getApiErrorMessage, registerUser } from '@/app/services/auth/authApi';
 import { useAuthButtons } from '@/app/hooks/useAuthButtons';
+import SafeInput from '../inputs/safeInput';
 
 type RegisterFieldErrors = {
   email?: string;
@@ -84,7 +85,7 @@ export default function RegisterForm() {
         priority
       />
 
-      <input
+      <SafeInput
         id="reg-email"
         name="email"
         ref={inputRef}
@@ -99,7 +100,7 @@ export default function RegisterForm() {
         aria-invalid={!!error.email}
       />
 
-      <input
+      <SafeInput
         id="reg-pass"
         name="password"
         type="password"
@@ -113,7 +114,7 @@ export default function RegisterForm() {
         aria-invalid={!!error.password}
       />
 
-      <input
+      <SafeInput
         id="reg-pass2"
         name="passwordConfirm"
         type="password"

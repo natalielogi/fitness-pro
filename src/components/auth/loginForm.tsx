@@ -7,6 +7,7 @@ import styles from './authModal.module.css';
 import { getApiErrorMessage, loginUser } from '@/app/services/auth/authApi';
 import { useAuth } from '@/context/auth';
 import { useAuthButtons } from '@/app/hooks/useAuthButtons';
+import SafeInput from '../inputs/safeInput';
 
 type LoginFieldErrors = { email?: string; password?: string; form?: string };
 
@@ -69,7 +70,7 @@ export default function LoginForm() {
         priority
       />
 
-      <input
+      <SafeInput
         id="email"
         name="email"
         type="email"
@@ -84,7 +85,7 @@ export default function LoginForm() {
         aria-invalid={!!error.email}
       />
 
-      <input
+      <SafeInput
         id="password"
         name="password"
         type="password"

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import styles from './progressModal.module.css';
+import SafeInput from '@/components/inputs/safeInput';
 
 export type ProgressModalProps = {
   open: boolean;
@@ -85,7 +86,7 @@ export default function ProgressModal({
             return (
               <label key={i} className={styles.field}>
                 <span className={styles.label}>Сколько раз вы сделали {label.toLowerCase()}?</span>
-                <input
+                <SafeInput
                   ref={i === 0 ? firstInputRef : undefined}
                   type="number"
                   min={0}

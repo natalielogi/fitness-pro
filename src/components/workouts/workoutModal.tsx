@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from 'react';
 import styles from './workoutModal.module.css';
 import { ApiError } from '@/app/services/api/apiError';
 import { getCourseProgress } from '@/app/services/progress/progressApi';
+import SafeInput from '../inputs/safeInput';
 
 type Props = { courseId: string; courseSlug?: string; open: boolean; onClose: () => void };
 
@@ -140,7 +141,7 @@ export default function WorkoutModal({ courseId, courseSlug, open, onClose }: Pr
               return (
                 <li key={w._id} className={styles.item}>
                   <label className={styles.row} onClick={() => goToWorkout(w._id)}>
-                    <input
+                    <SafeInput
                       type="radio"
                       name="workout"
                       value={w._id}
