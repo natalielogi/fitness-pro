@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+
 import { UiCourse } from '@/sharedTypes/types';
 import Image from 'next/image';
 import styles from './courseCard.module.css';
