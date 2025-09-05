@@ -120,3 +120,52 @@
 .cta:active {
   transform: translateY(1px);
 }
+@media (max-width: 375px) {
+  .container {
+    padding-top: 0;
+    margin-bottom: 40px;
+  }
+
+  .header {
+    margin-bottom: 24px;
+  }
+
+  .header__title {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 28px;
+  }
+
+  .videoWrap {
+    margin-bottom: 24px;
+  }
+
+  .panel {
+    padding: 30px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    justify-items: stretch;
+  }
+
+  .rowTop {
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+  }
+
+  .progressBar {
+    width: 100% !important;
+    max-width: none;
+  }
+
+  .cta {
+    width: 100%;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 21px;
+  }
+}
