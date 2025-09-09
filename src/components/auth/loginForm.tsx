@@ -8,6 +8,7 @@ import { getApiErrorMessage, loginUser } from '@/app/services/auth/authApi';
 import { useAuth } from '@/context/auth';
 import { useAuthButtons } from '@/app/hooks/useAuthButtons';
 import SafeInput from '../inputs/safeInput';
+import { normalizeApiMessage } from '@/lib/normalizeMessage';
 
 type LoginFieldErrors = { email?: string; password?: string; form?: string };
 
@@ -52,7 +53,8 @@ export default function LoginForm() {
       login(token, email);
       close?.();
     } catch (e) {
-      const msg = getApiErrorMessage(e);
+      const msg = normalizeApiMessage(getApiErrorMessage(e));
+      setError(mapLoginError(msg));
       setError(mapLoginError(msg));
     } finally {
       setIsSubmitting(false);
