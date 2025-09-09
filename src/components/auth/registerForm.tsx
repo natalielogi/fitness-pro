@@ -7,6 +7,7 @@ import styles from './authModal.module.css';
 import { getApiErrorMessage, registerUser } from '@/app/services/auth/authApi';
 import { useAuthButtons } from '@/app/hooks/useAuthButtons';
 import SafeInput from '../inputs/safeInput';
+import { normalizeApiMessage } from '@/lib/normalizeMessage';
 
 type RegisterFieldErrors = {
   email?: string;
@@ -67,7 +68,7 @@ export default function RegisterForm() {
       setOk(message || 'Регистрация прошла успешно!');
       switchMode('login');
     } catch (e) {
-      const msg = getApiErrorMessage(e);
+      const msg = normalizeApiMessage(getApiErrorMessage(e));
       setError(mapRegisterError(msg));
     } finally {
       setIsSubmitting(false);
